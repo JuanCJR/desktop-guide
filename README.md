@@ -58,7 +58,8 @@ src/
 
 El proyecto sigue **GitFlow**: las ramas `feature/*`, `fix/*`, `release/*` y
 `hotfix/*` salen de `develop` (o de `main` en el caso de los hotfix), y todos
-los Pull Requests van contra `main`. Los commits siguen
+los Pull Requests van contra `main`. Después de cada merge, `develop` se
+sincroniza con `main` mediante un fast-forward (ver `CLAUDE.md`). Los commits siguen
 [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## Licencia

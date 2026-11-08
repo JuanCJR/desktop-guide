@@ -168,7 +168,28 @@ Ramas:
 - Commits con **Conventional Commits** en inglés: `feat:`, `fix:`, `refactor:`,
   `test:`, `docs:`, `chore:`, `ci:`, `build:`. Opcionalmente con scope:
   `feat(ipc): add settings channel`.
-- No hagas push directo a `main` ni a `develop`.
+- No hagas push directo a `main` ni a `develop`. La única excepción es la
+  sincronización de `develop` descrita abajo.
+
+### Sincronizar `develop` después de cada merge a `main`
+
+Como los PR van a `main`, `develop` se queda atrás después de cada merge. Si no
+se sincroniza, las ramas nuevas salen sin los últimos cambios. Después de
+**cada** merge a `main`:
+
+```bash
+git fetch origin main develop
+git checkout develop
+git merge --ff-only origin/main
+git push origin develop
+```
+
+- Usa siempre `--ff-only`: la sincronización no puede crear commits ni
+  reescribir historial.
+- Si el fast-forward falla, `develop` tiene commits que no están en `main`.
+  No fuerces el push: avisa al usuario y resuélvelo con un PR de `develop` a
+  `main`.
+- Crea las ramas nuevas desde `develop` solo después de sincronizarla.
 
 ## Definición de "terminado"
 
