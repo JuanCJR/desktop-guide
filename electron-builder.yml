@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json
+appId: com.desktopguide.app
+productName: Desktop Guide
+copyright: Copyright © ${author}
+
+directories:
+  buildResources: build
+  output: release/${version}
+
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.{map,ts,tsx}'
+
+asar: true
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  # Place a 256x256 `build/icon.ico` to brand the executable and installer.
+  # Code signing: set CSC_LINK / CSC_KEY_PASSWORD (or Azure Trusted Signing) in CI.
+  # signtoolOptions: {}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  artifactName: ${name}-${version}-setup-${arch}.${ext}
+
+publish: null
