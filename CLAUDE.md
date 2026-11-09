@@ -145,6 +145,14 @@ Reglas:
 - Las pantallas leen el contenido con `useContent().content`. Cada pantalla
   editable se envuelve en `EditablePage` y tiene su `<feature>-editor.tsx`,
   que edita su sección con `useSectionDraft('<sección>')`.
+- **Páginas de texto** (SAIA, trámites, verano, normas y las de docentes):
+  usan el tipo genérico `Article` (título, introducción y secciones con
+  pasos, viñetas o lista para marcar), `ArticlePage` y `ArticleEditor`.
+  Para una página de texto nueva: agrega su clave a `ARTICLE_KEYS`, su
+  contenido a `default-content.ts`, su entrada en `ARTICLE_PAGES`
+  (`lib/navigation.ts`) y su `case` en `app.tsx`. Solo crea una página
+  propia cuando necesite una vista especial (como el calendario o el
+  simulador).
 - Para agregar una sección: agrégala al esquema y a `default-content.ts`,
   crea la página y su editor, y añade tests del esquema.
 - Cambiar el esquema de forma incompatible invalida los paquetes ya

@@ -103,7 +103,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply overflow-hidden bg-background text-foreground antialiased;
     font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   }
 }

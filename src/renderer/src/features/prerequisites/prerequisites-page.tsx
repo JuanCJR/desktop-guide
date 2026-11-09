@@ -8,7 +8,7 @@ import { useContent } from '@/features/content/content-context';
 import { EditablePage } from '@/features/editor/editable-page';
 import { toggleInSet } from '@/lib/persisted-set';
 import { cn } from '@/lib/utils';
-import { dependentsOf, evaluatePrerequisites } from '@shared/content/prerequisites';
+import { dependentsOf, evaluatePrerequisites, sumCredits } from '@shared/content/prerequisites';
 
 import { PrerequisitesEditor } from './prerequisites-editor';
 
@@ -19,7 +19,10 @@ export function PrerequisitesPage() {
   const { firstSemester, secondSemester } = prerequisites;
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const results = evaluatePrerequisites(firstSemester, secondSemester, failed);
-  const available = results.filter((r) => r.blockedBy.length === 0).length;
+  const availableSubjects = results.filter((r) => r.blockedBy.length === 0).map((r) => r.subject);
+  const available = availableSubjects.length;
+  const availableCredits = sumCredits(availableSubjects);
+  const totalCredits = sumCredits(secondSemester);
 
   return (
     <EditablePage editor={(close) => <PrerequisitesEditor onClose={close} />}>
@@ -55,7 +58,7 @@ export function PrerequisitesPage() {
                 <li key={subject.code}>
                   <label
                     className={cn(
-                      'flex cursor-pointer items-center justify-between gap-4 rounded-lg border px-4 py-3 transition-colors',
+                      'relative flex cursor-pointer items-center justify-between gap-4 rounded-lg border px-4 py-3 transition-colors',
                       isFailed ? 'border-warning bg-warning-soft' : 'hover:border-brand-accent',
                     )}
                   >
@@ -105,7 +108,8 @@ export function PrerequisitesPage() {
         <section className="rounded-xl border bg-card p-5" aria-live="polite">
           <h2 className="font-semibold text-brand">2º semestre</h2>
           <p className="mb-3 text-sm text-muted-foreground">
-            Podrías inscribir {available} de {results.length} materias.
+            Podrías inscribir {available} de {results.length} materias ({availableCredits} de{' '}
+            {totalCredits} UC).
           </p>
           <ul className="space-y-2">
             {results.map(({ subject, blockedBy }) => {
@@ -125,7 +129,9 @@ export function PrerequisitesPage() {
                     <span className="block text-xs text-muted-foreground">
                       {blocked
                         ? `Bloqueada por: ${blockedBy.map((s) => s.name).join(', ')}`
-                        : `${subject.code}${credits(subject.credits)}`}
+                        : `${subject.code}${credits(subject.credits)}${
+                            subject.prerequisites.length === 0 ? ' · Sin prelación' : ''
+                          }`}
                     </span>
                   </span>
                   <span

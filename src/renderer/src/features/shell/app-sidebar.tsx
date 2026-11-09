@@ -34,7 +34,10 @@ export function AppSidebar({
           <p className="text-xs opacity-70">Escuela 47 · Ing. de Sistemas</p>
         </div>
       </div>
-      <nav aria-label="Secciones del manual" className="flex-1 space-y-4 overflow-y-auto">
+      <nav
+        aria-label="Secciones del manual"
+        className="-mr-2 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--sidebar-active)_transparent] space-y-3 overflow-y-auto pr-2"
+      >
         {NAV_SECTIONS.map((section, index) => (
           <div key={section.title ?? index}>
             {section.title && (
@@ -54,7 +57,7 @@ export function AppSidebar({
                         onNavigate(item.id);
                       }}
                       className={cn(
-                        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-foreground/60',
+                        'flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-left text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-foreground/60',
                         active
                           ? 'bg-sidebar-active font-semibold text-brand-foreground'
                           : 'hover:bg-sidebar-active/40 hover:text-brand-foreground',

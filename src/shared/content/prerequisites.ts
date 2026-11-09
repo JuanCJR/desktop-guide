@@ -30,3 +30,8 @@ export function evaluatePrerequisites(
 export function dependentsOf(code: string, secondSemester: readonly NextSubject[]): string[] {
   return secondSemester.filter((s) => s.prerequisites.includes(code)).map((s) => s.name);
 }
+
+/** Total credit units of the given subjects; subjects without credits count as 0. */
+export function sumCredits(subjects: readonly { credits: number | null }[]): number {
+  return subjects.reduce((total, subject) => total + (subject.credits ?? 0), 0);
+}

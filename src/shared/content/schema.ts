@@ -128,6 +128,130 @@ const prerequisitesSchema = z
     });
   });
 
+/** How the items of an article section are shown. */
+export const sectionStyleSchema = z.enum(['numbered', 'bulleted', 'checklist']);
+export type SectionStyle = z.infer<typeof sectionStyleSchema>;
+
+export const noticeToneSchema = z.enum(['warning', 'info']);
+export type NoticeTone = z.infer<typeof noticeToneSchema>;
+
+export const articleSectionSchema = z.object({
+  id: idSchema,
+  title: text(120),
+  /** Intro paragraph of the section; an empty string hides it. */
+  body: optionalText(800),
+  style: sectionStyleSchema,
+  items: z.array(text(400)).max(20),
+  /** Highlighted message; an empty string hides it. */
+  notice: optionalText(400),
+  noticeTone: noticeToneSchema,
+});
+export type ArticleSection = z.infer<typeof articleSectionSchema>;
+
+/** A generic page: title, intro and sections of steps, bullets or checklists. */
+export const articleSchema = z.object({
+  title: text(120),
+  intro: text(600),
+  sections: z.array(articleSectionSchema).min(1, 'Agrega al menos una sección.').max(12),
+});
+export type Article = z.infer<typeof articleSchema>;
+
+/** Content keys rendered with the generic article page. */
+export const ARTICLE_KEYS = [
+  'saiaFirstLogin',
+  'procedures',
+  'summer',
+  'rules',
+  'teacherOnboarding',
+  'teacherSaia',
+  'teacherProcedures',
+] as const;
+export type ArticleKey = (typeof ARTICLE_KEYS)[number];
+
+export const calendarCutSchema = z.object({
+  id: idSchema,
+  name: text(40),
+  percent: z.number().int().min(0).max(100),
+  fromWeek: z.number().int().min(1).max(30),
+  toWeek: z.number().int().min(1).max(30),
+});
+export type CalendarCut = z.infer<typeof calendarCutSchema>;
+
+export const milestoneSchema = z.object({
+  id: idSchema,
+  /** 0 = before the semester starts. */
+  week: z.number().int().min(0).max(30),
+  title: text(100),
+  description: text(400),
+});
+export type Milestone = z.infer<typeof milestoneSchema>;
+
+const calendarSchema = z
+  .object({
+    title: text(120),
+    intro: text(400),
+    totalWeeks: z.number().int().min(4).max(30),
+    cuts: z.array(calendarCutSchema).min(1).max(6),
+    milestones: z.array(milestoneSchema).max(40),
+  })
+  .superRefine((value, ctx) => {
+    value.cuts.forEach((cut, index) => {
+      if (cut.fromWeek > cut.toWeek || cut.toWeek > value.totalWeeks) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['cuts', index],
+          message: `${cut.name}: las semanas deben ir de menor a mayor y no pasar de ${value.totalWeeks}.`,
+        });
+      }
+    });
+    const percent = value.cuts.reduce((sum, cut) => sum + cut.percent, 0);
+    if (percent !== 100) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['cuts'],
+        message: `Los porcentajes de los cortes suman ${percent}%, deben sumar 100%.`,
+      });
+    }
+    value.milestones.forEach((milestone, index) => {
+      if (milestone.week > value.totalWeeks) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['milestones', index],
+          message: `${milestone.title}: la semana ${milestone.week} no existe en el semestre.`,
+        });
+      }
+    });
+  });
+export type Calendar = z.infer<typeof calendarSchema>;
+
+export const faqItemSchema = z.object({
+  id: idSchema,
+  audience: audienceSchema,
+  question: text(200),
+  answer: text(1200),
+});
+export type FaqItem = z.infer<typeof faqItemSchema>;
+
+const faqSchema = z.object({
+  title: text(120),
+  intro: text(400),
+  items: z.array(faqItemSchema).max(60),
+});
+
+export const officeSchema = z.object({
+  id: idSchema,
+  name: text(120),
+  location: text(160),
+  services: text(400),
+});
+export type Office = z.infer<typeof officeSchema>;
+
+const directorySchema = z.object({
+  title: text(120),
+  intro: text(400),
+  offices: z.array(officeSchema).max(30),
+});
+
 export const manualContentSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -135,6 +259,16 @@ export const manualContentSchema = z
     enrollment: enrollmentSchema,
     grades: gradesSchema,
     prerequisites: prerequisitesSchema,
+    saiaFirstLogin: articleSchema,
+    procedures: articleSchema,
+    summer: articleSchema,
+    rules: articleSchema,
+    teacherOnboarding: articleSchema,
+    teacherSaia: articleSchema,
+    teacherProcedures: articleSchema,
+    teacherCalendar: calendarSchema,
+    faq: faqSchema,
+    directory: directorySchema,
   })
   .superRefine((value, ctx) => {
     const checkUnique = (ids: string[], label: string) => {
@@ -153,6 +287,24 @@ export const manualContentSchema = z
     checkUnique(
       value.enrollment.steps.flatMap((step) => step.tasks.map((task) => task.id)),
       'las tareas de inscripción',
+    );
+    for (const key of ARTICLE_KEYS) {
+      checkUnique(
+        value[key].sections.map((section) => section.id),
+        `las secciones de «${value[key].title}»`,
+      );
+    }
+    checkUnique(
+      value.teacherCalendar.milestones.map((m) => m.id),
+      'las fechas del calendario',
+    );
+    checkUnique(
+      value.faq.items.map((item) => item.id),
+      'las preguntas frecuentes',
+    );
+    checkUnique(
+      value.directory.offices.map((office) => office.id),
+      'el directorio',
     );
   });
 
