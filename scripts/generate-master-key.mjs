@@ -164,4 +164,4 @@ export const MASTER_PUBLIC_KEY_PEM: string | null = \`${publicKey.trim()}\`;
 
 console.info(`Master key written to ${outputPath} (keep it offline, never commit it).`);
 console.info(`Master public key written to ${publicKeyFile}. Commit it and rebuild.`);
-console.info('Next: open the app > Contenido del manual > Crear llave de edición nueva.');
+console.info('Next: open the app > Contenido del manual > Crear llave de edición.');

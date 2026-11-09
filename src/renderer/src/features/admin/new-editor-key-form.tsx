@@ -1,11 +1,11 @@
 /**
- * Formulario para crear una llave de edición nueva (dentro de "Contenido del
+ * Formulario para crear una llave de edición (dentro de "Contenido del
  * manual", en `./content-admin-page.tsx`).
  *
- * Sirve cuando la llave de edición se pierde o la roban: con la llave maestra
- * de la escuela se crea una nueva, y las anteriores dejan de funcionar. La
- * creación real ocurre en el proceso principal
- * (`src/main/content/content-service.ts`).
+ * Se usa la primera vez, para crear la llave con la que se edita, y también
+ * cuando la llave de edición se pierde o la roban: con la llave maestra de la
+ * escuela se crea una nueva, y las anteriores dejan de funcionar. La creación
+ * real ocurre en el proceso principal (`src/main/content/content-service.ts`).
  */
 import { KeySquare } from 'lucide-react';
 import { useState } from 'react';
@@ -18,8 +18,8 @@ import { type ActionResult, useContent } from '@/features/content/content-contex
 const MIN_LENGTH = 8;
 
 /**
- * Permite que la escuela reemplace por su cuenta una llave de edición perdida
- * o robada, usando la llave maestra. Va dentro de un bloque plegable
+ * Permite que la escuela cree por su cuenta una llave de edición (la primera o
+ * una de reemplazo), usando la llave maestra. Va dentro de un bloque plegable
  * (<details>) para no distraer al resto de los usuarios.
  */
 export function NewEditorKeyForm({
@@ -44,8 +44,11 @@ export function NewEditorKeyForm({
 
   return (
     <details className="group rounded-lg border bg-muted/40 p-4">
-      <summary className="cursor-pointer font-medium text-brand marker:text-brand-accent">
-        ¿Se perdió o robaron la llave de edición?
+      <summary className="cursor-pointer marker:text-brand-accent">
+        <span className="font-medium text-brand">Crear llave de edición</span>
+        <span className="mt-0.5 block pl-4 text-sm text-muted-foreground">
+          La primera vez, o si la llave de edición se perdió o la robaron.
+        </span>
       </summary>
       {/* Al enviar, se pide la llave maestra y dónde guardar la nueva; si sale bien, se limpian los campos. */}
       <form
@@ -64,16 +67,25 @@ export function NewEditorKeyForm({
         }}
       >
         <p>
-          Con la <strong>llave maestra</strong> puedes crear una llave de edición nueva. La anterior
-          deja de servir en esta computadora y, en las demás, cuando importen el próximo contenido
-          que publiques con la llave nueva.
+          Necesitas el archivo de la <strong>llave maestra</strong> (.pem) y su contraseña.
         </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <strong>La primera vez:</strong> crea la llave con la que se desbloquea la edición.
+          </li>
+          <li>
+            <strong>Si se perdió o la robaron:</strong> la llave nueva reemplaza a la anterior, que
+            deja de servir en esta computadora y, en las demás, cuando importen el próximo contenido
+            que publiques con la llave nueva.
+          </li>
+        </ul>
         <ol className="list-decimal space-y-1 pl-5">
           <li>Escribe la contraseña de la llave maestra y una contraseña nueva.</li>
           <li>Selecciona el archivo de la llave maestra (.pem).</li>
           <li>Elige dónde guardar la llave de edición nueva (.psmkey) y haz una copia.</li>
           <li>
-            Desbloquea con la llave nueva, publica un cambio y expórtalo a las demás computadoras.
+            Desbloquea la edición con la llave nueva. Si reemplazaste una llave, publica un cambio y
+            expórtalo a las demás computadoras.
           </li>
         </ol>
         <div className="space-y-1.5">
@@ -122,7 +134,7 @@ export function NewEditorKeyForm({
         {mismatch && <p className="text-warning">Las contraseñas no coinciden.</p>}
         <Button type="submit" variant="outline" disabled={busy || !ready}>
           <KeySquare />
-          Crear llave de edición nueva
+          Crear llave de edición
         </Button>
       </form>
     </details>

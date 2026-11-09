@@ -199,8 +199,8 @@ export function ContentAdminPage() {
               }}
             >
               <p>
-                Escribe la contraseña de tu llave de edición y luego selecciona el archivo de la
-                llave (.psmkey).
+                Escribe la contraseña de tu llave de edición y luego selecciona su archivo
+                (.psmkey). ¿Todavía no tienes una? Créala abajo, en «Crear llave de edición».
               </p>
               <div className="space-y-1.5">
                 <Label htmlFor="key-passphrase">Contraseña de la llave de edición</Label>

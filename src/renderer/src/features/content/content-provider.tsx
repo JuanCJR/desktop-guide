@@ -99,7 +99,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       return {
         ok: true,
         message:
-          'Llave de edición nueva creada. Las llaves anteriores ya no sirven en esta computadora, y en las demás dejarán de servir cuando importen el próximo contenido publicado.',
+          'Llave de edición creada. Ya puedes desbloquear la edición con ella. Si reemplazaste una llave anterior, esa ya no sirve en esta computadora y, en las demás, dejará de servir cuando importen el próximo contenido publicado.',
       };
     },
     [],

@@ -53,7 +53,16 @@ export interface ContentServiceOptions {
 // Posibles resultados de cada operación (se envían a la interfaz).
 export type UnlockResult = { status: 'unlocked' } | { status: 'invalid'; message: string };
 export type PublishResult = { status: 'published' } | { status: 'locked' };
-export type ImportResult = { status: 'imported' } | { status: 'invalid'; message: string };
+export type ImportResult =
+  { status: 'imported' } | { status: 'cancelled' } | { status: 'invalid'; message: string };
+
+/** Fechas que se comparan cuando el archivo importado es más antiguo que el actual. */
+export interface OlderPackageInfo {
+  /** Fecha de publicación del archivo que se quiere importar. */
+  incoming: string;
+  /** Fecha de publicación del contenido que se muestra ahora. */
+  current: string;
+}
 export type CreateKeyResult =
   | { status: 'created'; issuedAt: string }
   | { status: 'cancelled' }
@@ -183,7 +192,16 @@ export class ContentService {
   }
 
   /** Acepta un paquete de contenido traído de otro computador, si su firma es válida. */
-  async importPackage(raw: string): Promise<ImportResult> {
+  /**
+   * Importa un paquete publicado en otra computadora. Si es más antiguo que el
+   * contenido que ya se muestra aquí, pregunta con `confirmOlder` antes de
+   * reemplazarlo (sin esa función, no lo reemplaza), para que nadie vuelva a
+   * una versión vieja por error.
+   */
+  async importPackage(
+    raw: string,
+    confirmOlder?: (info: OlderPackageInfo) => Promise<boolean>,
+  ): Promise<ImportResult> {
     if (!this.masterPublicKey) return { status: 'invalid', message: NOT_CONFIGURED };
     if (raw.length > MAX_PACKAGE_BYTES) {
       return { status: 'invalid', message: 'El archivo es demasiado grande.' };
@@ -196,6 +214,17 @@ export class ContentService {
         message: 'Este archivo fue publicado con una llave que ya fue reemplazada.',
       };
     }
+
+    // Compara con el contenido guardado (si hay uno válido) para avisar si el
+    // archivo nuevo es más antiguo.
+    const stored = await this.packageStorage.read();
+    const current = stored === null ? null : openPackage(stored, this.masterPublicKey);
+    if (current?.ok && time(opened.publishedAt) < time(current.publishedAt)) {
+      const info = { incoming: opened.publishedAt, current: current.publishedAt };
+      const accepted = confirmOlder ? await confirmOlder(info) : false;
+      if (!accepted) return { status: 'cancelled' };
+    }
+
     await this.packageStorage.write(raw);
     await this.rememberKey(opened.certificate.issuedAt);
     return { status: 'imported' };
