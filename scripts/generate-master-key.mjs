@@ -94,6 +94,16 @@ if (insideRepo) {
     `Refusing to write the master key inside the repository (${outputPath}). ` +
       'Choose a folder outside it, e.g. a USB drive.',
   );
+  // En WSL o Linux, una ruta como "E:/llave.pem" no es la unidad E: de
+  // Windows sino una carpeta relativa; se sugiere la ruta correcta.
+  const windowsDrive = /^([A-Za-z]):[\\/]/.exec(output);
+  if (windowsDrive && process.platform !== 'win32') {
+    const drive = windowsDrive[1].toLowerCase();
+    console.error(
+      `Tip: in WSL the Windows drive ${windowsDrive[1]}: is /mnt/${drive}/, ` +
+        `e.g. /mnt/${drive}/${output.slice(3)}`,
+    );
+  }
   process.exit(1);
 }
 if (existsSync(outputPath)) {

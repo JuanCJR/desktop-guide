@@ -172,8 +172,9 @@ Reglas:
      desbloquear o importar con certificados más viejos. El contenido ya
      guardado se sigue mostrando aunque su llave haya sido reemplazada.
   5. La edición se desbloquea solo en memoria. **Ninguna llave privada va al
-     repositorio** (`*.pem` y `*.psmkey` están ignorados). La maestra actual
-     es **de prueba**: genera la definitiva antes de distribuir.
+     repositorio** (`*.pem` y `*.psmkey` están ignorados). La maestra de
+     `public-key.ts` es la **definitiva**: no la regeneres salvo que se pierda,
+     porque anula todas las llaves de edición y el contenido publicado.
 - Las preferencias locales (casillas marcadas) se guardan en `localStorage`
   con `usePersistedSet`; nunca guardes contenido ahí.
 

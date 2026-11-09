@@ -9,5 +9,5 @@
  * privada nunca debe guardarse en el repositorio.
  */
 export const MASTER_PUBLIC_KEY_PEM: string | null = `-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEAQrKtVOUPmB/+YPd6owNCGXs3GNsw0igKSz8I0bXAx0I=
+MCowBQYDK2VwAyEAIpAUaMmPEoYVhIE9UmQQaqHS86YV5D3uEvviFyd6iLU=
 -----END PUBLIC KEY-----`;
