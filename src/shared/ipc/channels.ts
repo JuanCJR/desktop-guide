@@ -4,7 +4,17 @@
  * Kept free of runtime dependencies so the sandboxed preload script can
  * import it without pulling the schema library into its bundle.
  */
-export const IPC_CHANNELS = ['app:get-info', 'app:ping'] as const;
+export const IPC_CHANNELS = [
+  'app:get-info',
+  'app:ping',
+  'content:get',
+  'content:publish',
+  'content:import',
+  'content:export',
+  'content:reset',
+  'editor:unlock',
+  'editor:lock',
+] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];
 

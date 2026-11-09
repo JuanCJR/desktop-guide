@@ -5,24 +5,39 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+
+  /* IUPSM palette: navy blue and white */
+  --brand: #0b2559;
+  --brand-foreground: #ffffff;
+  --brand-accent: #1e4aa0;
+  --brand-soft: #e8eef9;
+  --warning: #c2410c;
+  --warning-soft: #fff4ec;
+  --warning-foreground: #7c2d12;
+  --success: #1f8a5b;
+  --success-soft: #e6f4ed;
+  --sidebar: #0b2559;
+  --sidebar-foreground: #c9d5ee;
+  --sidebar-active: #1e4aa0;
+
+  --background: #f7f9fd;
+  --foreground: #0f1b33;
+  --card: #ffffff;
+  --card-foreground: #0f1b33;
+  --popover: #ffffff;
+  --popover-foreground: #0f1b33;
+  --primary: #0b2559;
+  --primary-foreground: #ffffff;
+  --secondary: #e8eef9;
+  --secondary-foreground: #0b2559;
+  --muted: #eef2f8;
+  --muted-foreground: #5b6a86;
+  --accent: #e8eef9;
+  --accent-foreground: #0b2559;
+  --destructive: #b42318;
+  --border: #d6dfef;
+  --input: #c8d3e8;
+  --ring: #1e4aa0;
 }
 
 .dark {
@@ -69,6 +84,18 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-soft: var(--brand-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-active: var(--sidebar-active);
 }
 
 @layer base {
