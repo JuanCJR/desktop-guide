@@ -283,8 +283,15 @@ Antes de dar una tarea por terminada:
   en `pnpm install`.
 - TypeScript está fijado en `~6.0` porque `typescript-eslint` todavía no
   soporta TypeScript 7. Revisa la compatibilidad antes de actualizarlo.
-- Ícono: `build/icon.ico` es el sello del PSM (de 16 a 256 px) y lo usan el
-  ejecutable y el instalador (`electron-builder.yml`). El acceso directo se
-  llama «Manual de Inducción IUPSM».
+- Ícono y nombre: `build/icon.ico` es el sello del PSM (de 16 a 256 px) y lo
+  usan el ejecutable, el instalador y el desinstalador (`electron-builder.yml`).
+  La app se llama «Manual de Inducción IUPSM», su ejecutable
+  `ManualInduccionIUPSM.exe` y el instalador
+  `Instalar-Manual-Induccion-IUPSM-<versión>.exe`.
+- Carpeta de datos: la app se llamaba «Desktop Guide». `src/main/index.ts`
+  fija `userData` en esa carpeta para que las instalaciones existentes no
+  pierdan el contenido publicado ni el registro de llaves. No cambies ese
+  nombre ni el `appId` (de él depende que el instalador actualice la versión
+  anterior en vez de instalar otra al lado).
 - Firma de código: el instalador no está firmado. Ver comentarios en
   `electron-builder.yml`.

@@ -1,10 +1,10 @@
 {
   "name": "desktop-guide",
-  "productName": "Desktop Guide",
+  "productName": "Manual de Inducción IUPSM",
   "version": "0.1.0",
   "private": true,
   "license": "UNLICENSED",
-  "description": "Desktop Guide — Electron + React + TypeScript desktop application",
+  "description": "Manual de Inducción de la Escuela de Ingeniería de Sistemas (47) del IUPSM, Extensión Maracay",
   "author": "JuanCJR",
   "main": "./out/main/index.js",
   "packageManager": "pnpm@10.28.0",
