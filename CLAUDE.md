@@ -196,8 +196,13 @@ Reglas:
 
 ## Convenciones de código
 
-- **Idioma**: identificadores, comentarios de código y commits en **inglés**.
-  Los textos de la UI y del contenido van en **español**, porque la app es
+- **Idioma**: identificadores y commits en **inglés**. Los **comentarios de
+  código** van en **español**, escritos para que una persona que no programa
+  entienda qué hace cada archivo y dónde vive cada parte de la app: cada
+  archivo abre con un comentario que explica qué es, qué hace y con qué otros
+  archivos se conecta, y las secciones clave llevan un comentario corto que
+  explica el porqué. Los textos de la UI y del contenido van en **español**,
+  porque la app es
   para la comunidad del IUPSM. La documentación (`README.md`, `CLAUDE.md`,
   PRs) también va en **español**.
 - Archivos en `kebab-case` (`welcome-page.tsx`). Componentes en `PascalCase`.

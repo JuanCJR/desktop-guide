@@ -1,3 +1,12 @@
+/**
+ * Pantalla de inicio de la app.
+ *
+ * Muestra la bienvenida, dos tarjetas para elegir el perfil (estudiante o
+ * docente) y los accesos rápidos a lo más consultado. Al hacer clic en una
+ * tarjeta o acceso, avisa a `src/renderer/src/app.tsx` para cambiar de
+ * pantalla. Los textos salen del contenido del manual (`home`); su
+ * formulario de edición está en `./home-editor.tsx`.
+ */
 import { ArrowRight, BookOpen, GraduationCap, type LucideIcon } from 'lucide-react';
 
 import { AudienceTag } from '@/components/audience-tag';
@@ -9,6 +18,7 @@ import type { PageId } from '@shared/content/pages';
 
 import { HomeEditor } from './home-editor';
 
+// Tarjeta de perfil (estudiante o docente) con un botón que lleva a su ruta.
 function RoleCard({
   icon: Icon,
   title,
@@ -44,6 +54,7 @@ export function HomePage({ onNavigate }: { onNavigate: (page: PageId) => void })
 
   return (
     <EditablePage editor={(close) => <HomeEditor onClose={close} />}>
+      {/* Bienvenida: recuadro azul con el título y la introducción. */}
       <section className="relative overflow-hidden rounded-2xl bg-brand px-9 py-8 text-brand-foreground">
         <div
           aria-hidden
@@ -58,6 +69,7 @@ export function HomePage({ onNavigate }: { onNavigate: (page: PageId) => void })
         </div>
       </section>
 
+      {/* Tarjetas de perfil: estudiantes van a su ruta de inscripción; docentes, a su guía de ingreso. */}
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         <RoleCard
           icon={GraduationCap}
@@ -79,6 +91,7 @@ export function HomePage({ onNavigate }: { onNavigate: (page: PageId) => void })
         />
       </div>
 
+      {/* Accesos rápidos a lo más consultado. */}
       {home.quickLinks.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-3 text-xs font-bold tracking-widest text-muted-foreground uppercase">

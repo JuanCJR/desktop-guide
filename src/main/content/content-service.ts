@@ -1,3 +1,22 @@
+/**
+ * Servicio de contenido: el "cerebro" que decide qué contenido del manual se
+ * muestra y quién puede cambiarlo.
+ *
+ * Cómo funciona, en pocas palabras:
+ * - La app trae un contenido original incluido (`src/shared/content/default-content.ts`).
+ * - Quien tenga una llave de edición (un archivo `.psmkey` más su contraseña)
+ *   puede publicar cambios. Cada publicación se guarda como un "paquete"
+ *   firmado digitalmente, y la firma prueba que lo publicó la escuela.
+ * - Ese paquete se puede exportar e importar en otros computadores; la app
+ *   solo lo acepta si la firma es válida.
+ * - Si una llave se pierde, se crea una nueva con la llave maestra y las
+ *   anteriores dejan de aceptarse.
+ *
+ * Las operaciones criptográficas están en `./signing.ts`; el guardado en disco,
+ * en `./file-storage.ts`. Los canales IPC que exponen este servicio a la
+ * interfaz están en `../ipc/handlers/content.ts`. No importa Electron, así que
+ * se puede probar con tests (`./content-service.test.ts`).
+ */
 import type { KeyObject } from 'node:crypto';
 
 import { type EditorCertificate, MAX_PACKAGE_BYTES } from '@shared/content/package';
@@ -12,7 +31,7 @@ import {
   openPackage,
 } from './signing';
 
-/** A small text file on disk (missing file = `null`). */
+/** Un archivo de texto pequeño en el disco (si no existe, se lee como `null`). */
 export interface TextStorage {
   read: () => Promise<string | null>;
   write: (data: string) => Promise<void>;
@@ -20,16 +39,18 @@ export interface TextStorage {
 }
 
 export interface ContentServiceOptions {
-  /** The active signed content package. */
+  /** Dónde se guarda el paquete de contenido firmado que está activo. */
   packageStorage: TextStorage;
-  /** Remembers the newest editor key seen, to reject replaced keys. */
+  /** Recuerda la llave de edición más nueva vista, para rechazar las reemplazadas. */
   trustStorage: TextStorage;
+  /** Contenido original que viene incluido en la app. */
   bundled: ManualContent;
-  /** Bundled master public key; `null` disables signed content entirely. */
+  /** Llave maestra pública incluida en la app; si es `null`, no se puede editar. */
   masterPublicKey: KeyObject | null;
   now?: () => Date;
 }
 
+// Posibles resultados de cada operación (se envían a la interfaz).
 export type UnlockResult = { status: 'unlocked' } | { status: 'invalid'; message: string };
 export type PublishResult = { status: 'published' } | { status: 'locked' };
 export type ImportResult = { status: 'imported' } | { status: 'invalid'; message: string };
@@ -46,10 +67,11 @@ export const MIN_PASSPHRASE_LENGTH = 8;
 const time = (iso: string) => Date.parse(iso);
 
 /**
- * Decides which content the app shows and guards every change behind the
- * school's signatures. Free of Electron imports so it can be unit-tested.
+ * Decide qué contenido muestra la app y protege cada cambio con las firmas de
+ * la escuela. No depende de Electron, así que se puede probar con tests.
  */
 export class ContentService {
+  // Llave de edición abierta mientras el modo edición está activo (`null` = bloqueado).
   private editor: { key: KeyObject; certificate: EditorCertificate } | null = null;
   private readonly packageStorage: TextStorage;
   private readonly trustStorage: TextStorage;
@@ -65,7 +87,7 @@ export class ContentService {
     this.now = options.now ?? (() => new Date());
   }
 
-  /** Issue date of the newest editor key this computer has seen. */
+  /** Fecha de creación de la llave de edición más nueva que ha visto este computador. */
   private async newestKeyIssuedAt(): Promise<string | null> {
     try {
       const raw = await this.trustStorage.read();
@@ -77,18 +99,24 @@ export class ContentService {
     }
   }
 
-  /** Records `issuedAt` as the newest key if it is newer than the current one. */
+  /** Guarda `issuedAt` como la llave más nueva, si es más reciente que la actual. */
   private async rememberKey(issuedAt: string): Promise<void> {
     const current = await this.newestKeyIssuedAt();
     if (current !== null && time(current) >= time(issuedAt)) return;
     await this.trustStorage.write(JSON.stringify({ newestKeyIssuedAt: issuedAt }));
   }
 
+  // Una llave está "reemplazada" si se creó antes que la más nueva conocida.
   private async isReplaced(certificate: EditorCertificate): Promise<boolean> {
     const newest = await this.newestKeyIssuedAt();
     return newest !== null && time(certificate.issuedAt) < time(newest);
   }
 
+  /**
+   * Devuelve qué contenido mostrar: el paquete publicado si existe y su firma
+   * es válida; si no, el contenido original incluido en la app (con un aviso
+   * cuando se tuvo que ignorar algo).
+   */
   async getState(): Promise<ContentState> {
     const base = {
       signingConfigured: this.masterPublicKey !== null,
@@ -107,8 +135,8 @@ export class ContentService {
     if (raw === null) return bundledState(null);
     if (!this.masterPublicKey) return bundledState(NOT_CONFIGURED);
 
-    // Content already stored was accepted when imported or published, so a
-    // later key replacement does not hide it; only new imports are refused.
+    // El contenido ya guardado se aceptó cuando se importó o publicó, así que
+    // reemplazar una llave después no lo oculta; solo se rechazan importaciones nuevas.
     const opened = openPackage(raw, this.masterPublicKey);
     if (!opened.ok) {
       return bundledState(
@@ -124,6 +152,7 @@ export class ContentService {
     };
   }
 
+  /** Activa el modo edición si la llave es válida, de la escuela y no está reemplazada. */
   async unlock(keyFileText: string, passphrase: string): Promise<UnlockResult> {
     if (!this.masterPublicKey) return { status: 'invalid', message: NOT_CONFIGURED };
     const opened = openEditorKeyFile(keyFileText, passphrase, this.masterPublicKey);
@@ -136,10 +165,12 @@ export class ContentService {
     return { status: 'unlocked' };
   }
 
+  /** Sale del modo edición (olvida la llave abierta). */
   lock(): void {
     this.editor = null;
   }
 
+  /** Firma el contenido editado con la llave abierta y lo guarda como contenido activo. */
   async publish(content: ManualContent): Promise<PublishResult> {
     if (!this.editor) return { status: 'locked' };
     if (await this.isReplaced(this.editor.certificate)) {
@@ -151,6 +182,7 @@ export class ContentService {
     return { status: 'published' };
   }
 
+  /** Acepta un paquete de contenido traído de otro computador, si su firma es válida. */
   async importPackage(raw: string): Promise<ImportResult> {
     if (!this.masterPublicKey) return { status: 'invalid', message: NOT_CONFIGURED };
     if (raw.length > MAX_PACKAGE_BYTES) {
@@ -170,11 +202,12 @@ export class ContentService {
   }
 
   /**
-   * Creates a new editor key with the master key. The new key replaces every
-   * older one on this computer, and on others as they import its packages.
-   * `saveKeyFile` stores the new `.psmkey` file and returns `false` if the
-   * user cancelled; older keys are only replaced once it was saved, so a
-   * cancelled save never leaves the school without a working key.
+   * Crea una llave de edición nueva con la llave maestra. La nueva llave
+   * reemplaza a todas las anteriores en este computador, y en los demás a
+   * medida que importan paquetes publicados con ella. `saveKeyFile` guarda el
+   * nuevo archivo `.psmkey` y devuelve `false` si el usuario canceló; las
+   * llaves anteriores solo se reemplazan cuando la nueva quedó guardada, para
+   * que una cancelación nunca deje a la escuela sin una llave que funcione.
    */
   async createEditorKey(
     masterKeyPem: string,
@@ -203,12 +236,12 @@ export class ContentService {
     return { status: 'created', issuedAt: certificate.issuedAt };
   }
 
-  /** The stored signed package, ready to be copied to other computers. */
+  /** El paquete firmado guardado, listo para copiarlo a otros computadores. */
   async exportPackage(): Promise<string | null> {
     return this.packageStorage.read();
   }
 
-  /** Back to the bundled content. Replaced keys stay replaced. */
+  /** Vuelve al contenido original. Las llaves reemplazadas siguen reemplazadas. */
   async reset(): Promise<void> {
     await this.packageStorage.remove();
   }

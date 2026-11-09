@@ -1,3 +1,11 @@
+/**
+ * Menú lateral de la app (la columna azul de la izquierda).
+ *
+ * Muestra el logo, los grupos de pantallas (Estudiantes, Docentes, General) y,
+ * abajo, la versión de la app. La lista de pantallas sale de
+ * `@/lib/navigation.ts`. Al hacer clic en una opción, avisa a
+ * `src/renderer/src/app.tsx` para que cambie de pantalla.
+ */
 import { useEffect, useState } from 'react';
 
 import sealUrl from '@/assets/psm-seal.png';
@@ -15,6 +23,7 @@ export function AppSidebar({
 }) {
   const [version, setVersion] = useState<string | null>(null);
 
+  // Pide al proceso principal la versión de la app para mostrarla al pie.
   useEffect(() => {
     invoke('app:get-info')
       .then((info) => {
@@ -34,6 +43,7 @@ export function AppSidebar({
           <p className="text-xs opacity-70">Escuela 47 · Ing. de Sistemas</p>
         </div>
       </div>
+      {/* Grupos de pantallas; la opción actual se resalta. */}
       <nav
         aria-label="Secciones del manual"
         className="-mr-2 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--sidebar-active)_transparent] space-y-3 overflow-y-auto pr-2"

@@ -1,10 +1,16 @@
+/**
+ * Marco común de todos los formularios de edición: título "Editando…", los
+ * botones "Cancelar" y "Guardar y publicar" (fijos arriba), y la lista de
+ * errores a corregir si la validación falla. Lo usan los archivos
+ * `*-editor.tsx` de cada pantalla.
+ */
 import { Save, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Notice } from '@/components/notice';
 import { Button } from '@/components/ui/button';
 
-/** Wrapper of every section editor: title, save/cancel bar and errors. */
+/** Envoltorio de cada editor: título, barra de guardar/cancelar y errores. */
 export function EditorFrame({
   title,
   saving,
@@ -46,6 +52,7 @@ export function EditorFrame({
           </Button>
         </div>
       </div>
+      {/* Errores de validación que hay que corregir antes de guardar. */}
       {errors.length > 0 && (
         <Notice>
           <p className="font-semibold">Revisa estos campos antes de guardar:</p>

@@ -1,10 +1,21 @@
+/**
+ * Reglas de seguridad de las ventanas de la aplicación.
+ *
+ * Evita que la interfaz abra páginas de internet dentro de la app o navegue a
+ * sitios externos. Los enlaces externos (por ejemplo, a la web del instituto)
+ * se abren en el navegador normal del computador.
+ *
+ * Se usa en `./index.ts` (para cada ventana nueva) y en `./ipc/register.ts`
+ * (para comprobar que cada mensaje viene de la propia app).
+ */
 import { app, shell, type WebContents } from 'electron';
 
 const DEV_SERVER_URL = process.env['ELECTRON_RENDERER_URL'];
 
 /**
- * A URL is trusted when it is the packaged renderer (file://) or, during
- * development only, the Vite dev server.
+ * Indica si una dirección es "de confianza", es decir, si pertenece a la propia
+ * app: los archivos empaquetados (file://) o, solo en desarrollo, el servidor
+ * local de Vite.
  */
 export function isTrustedUrl(rawUrl: string): boolean {
   let url: URL;
@@ -23,24 +34,25 @@ export function isTrustedUrl(rawUrl: string): boolean {
   return false;
 }
 
-/** Only these schemes may be handed to the OS via `shell.openExternal`. */
+/** Solo estos tipos de enlace se pueden abrir fuera de la app (web segura y correo). */
 const EXTERNAL_PROTOCOLS = new Set(['https:', 'mailto:']);
 
+// Abre un enlace en el navegador o el correo del sistema, solo si es seguro.
 function openExternalSafely(rawUrl: string): void {
   try {
     if (EXTERNAL_PROTOCOLS.has(new URL(rawUrl).protocol)) {
       void shell.openExternal(rawUrl);
     }
   } catch {
-    // Ignore malformed URLs.
+    // Se ignoran las direcciones mal formadas.
   }
 }
 
 /**
- * Hardens every WebContents created by the app:
- * - blocks `window.open` (external links are opened in the OS browser),
- * - blocks navigation away from the app,
- * - blocks `<webview>` attachment.
+ * Aplica las protecciones a cada contenido web que crea la app:
+ * - bloquea `window.open` (los enlaces externos se abren en el navegador),
+ * - bloquea la navegación fuera de la app,
+ * - bloquea la inserción de `<webview>` (páginas incrustadas).
  */
 export function hardenWebContents(contents: WebContents): void {
   contents.setWindowOpenHandler(({ url }) => {

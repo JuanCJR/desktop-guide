@@ -1,3 +1,13 @@
+/**
+ * Pantalla "Simulador de prelaciones" (menú Estudiantes).
+ *
+ * El estudiante marca las materias del 1er semestre que reprobó y la pantalla
+ * le muestra qué materias del 2º semestre podría inscribir, cuáles quedan
+ * bloqueadas (y por qué) y cuántas unidades de crédito suman. El cálculo está
+ * en `src/shared/content/prerequisites.ts`. Los datos salen del contenido del
+ * manual (`prerequisites`); su formulario de edición está en
+ * `./prerequisites-editor.tsx`.
+ */
 import { CircleAlert, Lock, LockOpen, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,11 +22,13 @@ import { dependentsOf, evaluatePrerequisites, sumCredits } from '@shared/content
 
 import { PrerequisitesEditor } from './prerequisites-editor';
 
+// Texto de unidades de crédito (UC) junto al nombre de la materia, si las tiene.
 const credits = (value: number | null) => (value === null ? '' : ` · ${value} UC`);
 
 export function PrerequisitesPage() {
   const { prerequisites } = useContent().content;
   const { firstSemester, secondSemester } = prerequisites;
+  // Materias marcadas como reprobadas (no se guardan: es solo una simulación).
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const results = evaluatePrerequisites(firstSemester, secondSemester, failed);
   const availableSubjects = results.filter((r) => r.blockedBy.length === 0).map((r) => r.subject);
@@ -47,6 +59,7 @@ export function PrerequisitesPage() {
       <Notice tone="info">{prerequisites.disclaimer}</Notice>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        {/* Columna izquierda: materias del 1er semestre para marcar las reprobadas. */}
         <section className="rounded-xl border bg-card p-5">
           <h2 className="font-semibold text-brand">1er semestre</h2>
           <p className="mb-3 text-sm text-muted-foreground">Marca las que reprobaste:</p>
@@ -105,6 +118,7 @@ export function PrerequisitesPage() {
           </ul>
         </section>
 
+        {/* Columna derecha: resultado para el 2º semestre (disponibles y bloqueadas). */}
         <section className="rounded-xl border bg-card p-5" aria-live="polite">
           <h2 className="font-semibold text-brand">2º semestre</h2>
           <p className="mb-3 text-sm text-muted-foreground">

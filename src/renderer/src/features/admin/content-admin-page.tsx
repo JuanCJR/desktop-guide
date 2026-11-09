@@ -1,3 +1,17 @@
+/**
+ * Pantalla "Contenido del manual" (menú General).
+ *
+ * Desde aquí se administra el contenido que muestra la app:
+ * - ver qué versión del contenido se está mostrando (la original o una publicada),
+ * - importar un archivo de contenido (.psm) recibido de la escuela,
+ * - exportar el contenido publicado para llevarlo a otros computadores,
+ * - volver al contenido original,
+ * - activar o desactivar el modo edición con la llave de la escuela,
+ * - crear una llave de edición nueva (`./new-editor-key-form.tsx`).
+ *
+ * Las acciones vienen de `@/features/content/content-context.ts`, que a su
+ * vez le pide el trabajo al proceso principal.
+ */
 import {
   Download,
   KeyRound,
@@ -20,8 +34,10 @@ import { cn } from '@/lib/utils';
 
 import { NewEditorKeyForm } from './new-editor-key-form';
 
+// Formato de fechas en español de Venezuela (por ejemplo, "9 de noviembre de 2026").
 const dateFormatter = new Intl.DateTimeFormat('es-VE', { dateStyle: 'long', timeStyle: 'short' });
 
+// Tarjeta con título que agrupa cada bloque de la pantalla.
 function Panel({
   title,
   className,
@@ -39,6 +55,7 @@ function Panel({
   );
 }
 
+// Mensaje de resultado (éxito o error) después de una acción.
 function Feedback({ result }: { result: ActionResult | null }) {
   if (!result) return null;
   return (
@@ -62,6 +79,7 @@ export function ContentAdminPage() {
   const [passphrase, setPassphrase] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // Ejecuta una acción mostrando "ocupado" y luego su mensaje de resultado.
   async function run(action: () => Promise<ActionResult | null>) {
     setBusy(true);
     setResult(null);
@@ -74,6 +92,7 @@ export function ContentAdminPage() {
     }
   }
 
+  // El contenido es "oficial" si viene de un paquete publicado y firmado.
   const official = state.source === 'signed-package' && state.publishedAt;
 
   return (
@@ -88,6 +107,7 @@ export function ContentAdminPage() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
+        {/* Qué contenido se está mostrando y desde cuándo. */}
         <Panel title="Versión actual">
           <p className="flex items-start gap-2 text-foreground">
             <ShieldCheck className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />
@@ -107,6 +127,7 @@ export function ContentAdminPage() {
           )}
         </Panel>
 
+        {/* Importar, exportar o volver al contenido original. */}
         <Panel title="Actualizar esta computadora">
           <p>
             Importa el archivo .psm que te entregó la Escuela para ver la información más reciente.
@@ -138,6 +159,7 @@ export function ContentAdminPage() {
           </div>
         </Panel>
 
+        {/* Modo edición: desbloquear con la llave, bloquear y crear una llave nueva. */}
         <Panel title="Edición (solo personal autorizado)" className="lg:col-span-2">
           {!state.signingConfigured ? (
             <p className="flex gap-2">

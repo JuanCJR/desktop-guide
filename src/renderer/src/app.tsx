@@ -1,3 +1,16 @@
+/**
+ * Componente principal de la interfaz: arma la estructura de la ventana y
+ * decide qué pantalla se muestra.
+ *
+ * La ventana tiene tres partes:
+ * - el menú lateral (`features/shell/app-sidebar.tsx`),
+ * - la barra superior con el buscador (`features/shell/top-bar.tsx`),
+ * - el área central, donde se muestra la pantalla elegida.
+ *
+ * Todo va dentro de `ContentProvider` (`features/content/content-provider.tsx`),
+ * que carga el contenido del manual y lo comparte con todas las pantallas.
+ * La lista de pantallas está en `src/shared/content/pages.ts`.
+ */
 import { useRef, useState } from 'react';
 
 import { ContentAdminPage } from '@/features/admin/content-admin-page';
@@ -14,6 +27,9 @@ import { AppSidebar } from '@/features/shell/app-sidebar';
 import { TopBar } from '@/features/shell/top-bar';
 import type { PageId } from '@shared/content/pages';
 
+// Elige qué pantalla mostrar según su identificador. Varias pantallas de
+// texto usan la misma página genérica de artículo (`ArticlePage`) con
+// contenido distinto.
 function CurrentPage({ page, onNavigate }: { page: PageId; onNavigate: (page: PageId) => void }) {
   switch (page) {
     case 'home':
@@ -50,9 +66,11 @@ function CurrentPage({ page, onNavigate }: { page: PageId; onNavigate: (page: Pa
 }
 
 export function App() {
+  // Pantalla actual; la app siempre empieza en "Inicio".
   const [page, setPage] = useState<PageId>('home');
   const mainRef = useRef<HTMLElement>(null);
 
+  // Cambia de pantalla y vuelve al principio de la página.
   function navigate(next: PageId) {
     setPage(next);
     mainRef.current?.scrollTo({ top: 0 });

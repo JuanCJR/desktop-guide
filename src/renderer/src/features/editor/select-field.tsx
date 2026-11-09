@@ -1,11 +1,16 @@
+/**
+ * Campos de selección y de número para los formularios de edición (por
+ * ejemplo, elegir "Estudiantes" o "Docentes", o indicar una semana).
+ */
 import { useId } from 'react';
 
 import { Label } from '@/components/ui/label';
 
+// Estilo compartido por los campos de selección y de número.
 export const selectClass =
   'h-9 w-full rounded-md border border-input bg-card px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
-/** Native select with a label; `options` maps each value to its visible text. */
+/** Lista desplegable con su etiqueta; `options` asocia cada valor con el texto que se ve. */
 export function SelectField<T extends string>({
   label,
   value,
@@ -40,7 +45,7 @@ export function SelectField<T extends string>({
   );
 }
 
-/** Integer input with a label. Empty or invalid input becomes `fallback`. */
+/** Campo de número entero con su etiqueta. Si se deja vacío o es inválido, usa `fallback`. */
 export function NumberField({
   label,
   value,

@@ -1,3 +1,13 @@
+/**
+ * Formulario de edición de la pantalla "Directorio".
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./directory-page.tsx`). Trabaja sobre un borrador de la parte `directory` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Permite agregar, quitar y reordenar oficinas.
+ */
 import { AddButton, ItemCard, ItemControls, TextField } from '@/features/editor/fields';
 import { EditorFrame } from '@/features/editor/editor-frame';
 import { useSectionDraft } from '@/features/editor/use-section-draft';

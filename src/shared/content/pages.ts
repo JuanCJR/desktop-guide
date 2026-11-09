@@ -1,6 +1,10 @@
 /**
- * Every screen of the manual. Kept free of runtime dependencies so it can be
- * shared by the content schema and the renderer navigation.
+ * Lista de todas las pantallas (páginas) del manual.
+ *
+ * Cada pantalla tiene un identificador fijo (por ejemplo, `enrollment` =
+ * inscripción). Esta lista la usan el esquema del contenido (`./schema.ts`) y
+ * el menú de navegación de la interfaz (`src/renderer/src/lib/navigation.ts`).
+ * No depende de ninguna librería para poder compartirse en toda la app.
  */
 export const PAGE_IDS = [
   'home',
@@ -22,7 +26,7 @@ export const PAGE_IDS = [
 
 export type PageId = (typeof PAGE_IDS)[number];
 
-/** Pages a quick link on the home screen may point to. */
+/** Pantallas a las que puede apuntar un acceso rápido de la pantalla de inicio. */
 export const LINKABLE_PAGE_IDS = [
   'enrollment',
   'prerequisites',

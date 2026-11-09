@@ -1,3 +1,9 @@
+/**
+ * Pantalla "Directorio" (menú General): una tarjeta por oficina con su nombre,
+ * ubicación y los servicios que ofrece. Los datos salen del contenido del
+ * manual (`directory`); su formulario de edición está en
+ * `./directory-editor.tsx`.
+ */
 import { MapPin } from 'lucide-react';
 
 import { PageHeader } from '@/components/page-header';

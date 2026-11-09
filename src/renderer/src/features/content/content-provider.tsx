@@ -1,3 +1,15 @@
+/**
+ * Proveedor del contenido del manual: carga el contenido al abrir la app y lo
+ * comparte con todas las pantallas (a través de `./content-context.ts`).
+ *
+ * Aquí está la conexión de la interfaz con el contenido guardado: cada acción
+ * (publicar, importar, exportar, restablecer, desbloquear, bloquear, crear
+ * llave) le pide el trabajo al proceso principal por IPC (`@/lib/ipc`), y
+ * luego actualiza lo que se muestra. Los mensajes que ve el usuario después
+ * de cada acción también se definen aquí.
+ *
+ * Envuelve toda la app en `src/renderer/src/app.tsx`.
+ */
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { invoke } from '@/lib/ipc';
@@ -13,6 +25,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ContentState | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  // Al abrir la app, pide el contenido actual al proceso principal.
   useEffect(() => {
     invoke('content:get')
       .then(setState)
@@ -21,6 +34,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
+  // Publicar: primero se valida aquí (para mostrar errores en el formulario)
+  // y luego el proceso principal lo firma y lo guarda.
   const publish = useCallback<ContentContextValue['publish']>(async (content) => {
     const parsed = manualContentSchema.safeParse(content);
     if (!parsed.success) return describeIssues(parsed.error);
@@ -32,6 +47,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     return [];
   }, []);
 
+  // Importar / exportar el archivo de contenido para compartirlo entre computadores.
   const importPackage = useCallback<ContentContextValue['importPackage']>(async () => {
     const result = await invoke('content:import');
     if (result.status === 'cancelled') return null;
@@ -55,10 +71,12 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Volver al contenido original de la app.
   const reset = useCallback(async () => {
     setState(await invoke('content:reset'));
   }, []);
 
+  // Activar / desactivar el modo edición con la llave de la escuela.
   const unlock = useCallback<ContentContextValue['unlock']>(async (passphrase) => {
     const result = await invoke('editor:unlock', { passphrase });
     if (result.status === 'cancelled') return null;
@@ -71,6 +89,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setState(await invoke('editor:lock'));
   }, []);
 
+  // Crear una llave de edición nueva con la llave maestra.
   const createEditorKey = useCallback<ContentContextValue['createEditorKey']>(
     async (masterPassphrase, newPassphrase) => {
       const result = await invoke('editor:create-key', { masterPassphrase, newPassphrase });
@@ -86,6 +105,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  // Mientras el contenido no ha cargado, `value` es `null`.
   const value = useMemo<ContentContextValue | null>(
     () =>
       state && {
@@ -102,6 +122,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     [state, publish, importPackage, exportPackage, reset, unlock, lock, createEditorKey],
   );
 
+  // Mientras carga se muestra "Cargando…"; si falla, se muestra el error.
   if (loadError) {
     return (
       <div role="alert" className="grid min-h-screen place-items-center p-8 text-destructive">

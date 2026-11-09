@@ -1,3 +1,13 @@
+/**
+ * Formulario de edición de la pantalla "Preguntas frecuentes".
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./faq-page.tsx`). Trabaja sobre un borrador de la parte `faq` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Permite agregar, quitar y reordenar preguntas y elegir su público.
+ */
 import { AddButton, ItemCard, ItemControls, TextField } from '@/features/editor/fields';
 import { EditorFrame } from '@/features/editor/editor-frame';
 import { SelectField } from '@/features/editor/select-field';
@@ -6,6 +16,7 @@ import { moveItem, removeAt, replaceAt } from '@/lib/list';
 import { newId } from '@/lib/new-id';
 import type { Audience, FaqItem } from '@shared/content/schema';
 
+// Opciones de público para cada pregunta.
 const AUDIENCE_OPTIONS = [
   ['student', 'Estudiantes'],
   ['teacher', 'Docentes'],

@@ -1,3 +1,14 @@
+/**
+ * Formulario de edición de la pantalla "Simulador de prelaciones".
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./prerequisites-page.tsx`). Trabaja sobre un borrador de la parte `prerequisites` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Permite editar las materias de cada semestre (código, nombre, créditos) y
+ * las prelaciones de las materias del 2º semestre.
+ */
 import { useId } from 'react';
 
 import { Input } from '@/components/ui/input';
@@ -9,11 +20,13 @@ import { moveItem, removeAt, replaceAt } from '@/lib/list';
 import { toggleInSet } from '@/lib/persisted-set';
 import type { NextSubject, Subject } from '@shared/content/schema';
 
+// Convierte el texto del campo de créditos en número (vacío = sin créditos).
 function parseCredits(value: string): number | null {
   const parsed = Number.parseInt(value, 10);
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+// Campos comunes de una materia: código, nombre y créditos.
 function SubjectFields<T extends Subject>({
   subject,
   onChange,
@@ -87,6 +100,7 @@ export function PrerequisitesEditor({ onClose }: { onClose: () => void }) {
         <TextField label="Consejo cuando se reprueba" multiline {...text('failedHint')} />
       </ItemCard>
 
+      {/* Materias del 1er semestre. */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand">Materias de 1er semestre</h2>
         {firstSemester.map((subject, index) => (
@@ -124,6 +138,7 @@ export function PrerequisitesEditor({ onClose }: { onClose: () => void }) {
         </AddButton>
       </section>
 
+      {/* Materias del 2º semestre, cada una con sus prelaciones. */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand">Materias de 2º semestre</h2>
         {secondSemester.map((subject, index) => (

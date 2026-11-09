@@ -1,24 +1,31 @@
-// Generates the school's MASTER key. Run it once, before distributing the app.
+// Script para generar la llave MAESTRA de la escuela. Se ejecuta una sola vez,
+// antes de distribuir la aplicación, desde una terminal:
 //
 //   pnpm content:master-key <output-master-key.pem>
 //
-// - Writes the master private key, encrypted with a passphrase, to the given
-//   path. Keep it OUT of the repository and away from day-to-day use (e.g. a
-//   sealed USB drive at the Direction). It is only needed to create a new
-//   editor key from the app when one is lost or stolen.
-// - Writes the master public key to src/main/content/public-key.ts. Commit
-//   that file and build the installer so every copy of the app trusts it.
+// Qué hace:
+// - Escribe la llave maestra privada, cifrada con una contraseña, en la ruta
+//   indicada. Esa llave debe quedar FUERA del repositorio y lejos del uso
+//   diario (por ejemplo, en un pendrive guardado en la Dirección). Solo hace
+//   falta para crear una llave de edición nueva desde la app cuando una se
+//   pierde o la roban.
+// - Escribe la llave maestra pública en src/main/content/public-key.ts. Ese
+//   archivo sí se guarda en el repositorio, y al generar el instalador cada
+//   copia de la app confía en él.
 //
-// Editor keys (the ones used to edit) are created inside the app, in
-// "Contenido del manual", with this master key.
+// Las llaves de edición (las que se usan para editar el manual) se crean dentro
+// de la app, en "Contenido del manual", usando esta llave maestra.
 //
-// The passphrase is read from CONTENT_KEY_PASSPHRASE or asked interactively.
+// La contraseña se lee de la variable CONTENT_KEY_PASSPHRASE o se pide en la
+// terminal.
 import { generateKeyPairSync } from 'node:crypto';
 import { existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 
+// Valida la ruta de salida: es obligatoria y nunca se sobrescribe una llave
+// existente, para no perder una llave maestra por accidente.
 const output = process.argv[2];
 if (!output) {
   console.error('Usage: pnpm content:master-key <output-master-key.pem>');
@@ -30,6 +37,7 @@ if (existsSync(outputPath)) {
   process.exit(1);
 }
 
+// Obtiene la contraseña que protegerá la llave maestra (mínimo 8 caracteres).
 let passphrase = process.env.CONTENT_KEY_PASSPHRASE ?? '';
 if (!passphrase) {
   const rl = createInterface({ input: stdin, output: stdout });
@@ -41,13 +49,19 @@ if (passphrase.length < 8) {
   process.exit(1);
 }
 
+// Crea el par de llaves (privada + pública) con el algoritmo Ed25519. La
+// privada queda cifrada con la contraseña.
 const { publicKey, privateKey } = generateKeyPairSync('ed25519', {
   publicKeyEncoding: { type: 'spki', format: 'pem' },
   privateKeyEncoding: { type: 'pkcs8', format: 'pem', cipher: 'aes-256-cbc', passphrase },
 });
 
+// Guarda la llave privada con permisos restringidos (solo el dueño la lee).
 writeFileSync(outputPath, privateKey, { mode: 0o600 });
 
+// Reescribe src/main/content/public-key.ts con la llave pública nueva. Nota:
+// el comentario de ese archivo generado queda en inglés porque forma parte del
+// texto que este script escribe.
 const publicKeyFile = resolve(import.meta.dirname, '../src/main/content/public-key.ts');
 writeFileSync(
   publicKeyFile,

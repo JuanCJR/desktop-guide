@@ -1,3 +1,12 @@
+/**
+ * Barra superior de la app: el buscador y, si el modo edición está activo, el
+ * aviso "Modo edición" con el botón para bloquear.
+ *
+ * El buscador encuentra pantallas, accesos rápidos de inicio, secciones de
+ * artículos y preguntas frecuentes. La lógica de búsqueda está en
+ * `@/lib/search.ts`; los datos salen del contenido del manual
+ * (`@/features/content/content-context.ts`) y del menú (`@/lib/navigation.ts`).
+ */
 import { Lock, Pencil, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -20,6 +29,8 @@ export function TopBar({ onNavigate }: { onNavigate: (page: PageId) => void }) {
   const { content, state, lock } = useContent();
   const [query, setQuery] = useState('');
 
+  // Todo lo que se puede buscar: pantallas del menú, accesos rápidos de
+  // inicio, secciones de cada artículo y preguntas frecuentes.
   const topics = useMemo<SearchableTopic<SearchResult>[]>(
     () => [
       ...NAV_ITEMS.filter((item) => item.id !== 'home').map((item) => ({
@@ -61,6 +72,7 @@ export function TopBar({ onNavigate }: { onNavigate: (page: PageId) => void }) {
   );
   const results = searchTopics(topics, query);
 
+  // Al elegir un resultado: limpia el buscador y abre esa pantalla.
   function go(page: PageId) {
     setQuery('');
     onNavigate(page);
@@ -88,6 +100,7 @@ export function TopBar({ onNavigate }: { onNavigate: (page: PageId) => void }) {
           }}
           className="h-10 w-full rounded-lg border bg-background pr-3 pl-9 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
         />
+        {/* Lista de resultados, visible mientras hay texto en el buscador. */}
         {query.trim() && (
           <ul className="absolute top-12 z-20 w-full overflow-hidden rounded-lg border bg-popover shadow-lg">
             {results.length === 0 ? (
@@ -111,6 +124,7 @@ export function TopBar({ onNavigate }: { onNavigate: (page: PageId) => void }) {
           </ul>
         )}
       </div>
+      {/* Aviso de modo edición y botón para salir de él. */}
       {state.editorUnlocked && (
         <div className="ml-auto flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-3 py-1 text-xs font-semibold text-warning">
