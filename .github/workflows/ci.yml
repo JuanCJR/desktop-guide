@@ -56,9 +56,13 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
+      # Sube solo el instalador (Instalar-Manual-Induccion-IUPSM-<versión>.exe,
+      # nombre definido en `artifactName` de electron-builder.yml).
       - uses: actions/upload-artifact@v7
         with:
-          name: desktop-guide-windows
-          path: release/*/*-setup-*.exe
+          name: manual-induccion-iupsm-windows
+          path: |
+            release/*/Instalar-*.exe
+            !release/*/*__uninstaller.exe
           if-no-files-found: error
           retention-days: 7
