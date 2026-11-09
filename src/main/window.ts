@@ -10,7 +10,7 @@ export function createMainWindow(): BrowserWindow {
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
-    title: 'Desktop Guide',
+    title: 'Manual de Inducción · IUPSM',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,

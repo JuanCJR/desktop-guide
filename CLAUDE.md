@@ -5,10 +5,14 @@ Léela completa antes de hacer cambios.
 
 ## Proyecto
 
-**Desktop Guide**: aplicación de escritorio para **Windows** construida con
-**Electron + React + TypeScript**. Este repositorio es el scaffold base: todavía
-no tiene lógica de dominio, solo una pantalla de bienvenida y un ejemplo de IPC
-de punta a punta.
+**Manual de Inducción · IUPSM** (paquete `desktop-guide`): manual interactivo
+de la Escuela de Ingeniería de Sistemas (47) del IUPSM, Extensión Maracay, para
+estudiantes que inscriben el 2º semestre y docentes de nuevo ingreso.
+Aplicación de escritorio para **Windows** construida con
+**Electron + React + TypeScript**.
+
+Requisitos del cliente: debe ser **sencilla y sin base de datos**, y **todo el
+contenido debe poder editarse** sin tocar código, pero **solo por la escuela**.
 
 ## Stack
 
@@ -41,6 +45,7 @@ pnpm test             # Vitest (una pasada)
 pnpm test:watch       # Vitest en modo watch
 pnpm check            # typecheck + lint + format:check + test (lo mismo que CI)
 pnpm package:win      # build + instalador NSIS en release/<version>/
+pnpm content:keygen <ruta.pem>  # genera la llave de la escuela (ver abajo)
 ```
 
 ## Arquitectura
@@ -49,6 +54,11 @@ pnpm package:win      # build + instalador NSIS en release/<version>/
 src/
 ├── main/                    # Proceso principal (Node + Electron)
 │   ├── index.ts             # Ciclo de vida de la app, single-instance, registro de IPC
+│   ├── content/             # Contenido firmado: firma/verificación, servicio, archivo
+│   │   ├── content-service.ts # Qué contenido se muestra; edición solo con la llave
+│   │   ├── signing.ts         # Ed25519: firmar, verificar y abrir paquetes .psm
+│   │   ├── file-storage.ts    # Paquete activo en userData (escritura atómica)
+│   │   └── public-key.ts      # Llave pública de la escuela (generada con content:keygen)
 │   ├── window.ts            # Creación de BrowserWindow (webPreferences seguras)
 │   ├── security.ts          # Endurecimiento de WebContents, URLs confiables
 │   └── ipc/
@@ -59,6 +69,12 @@ src/
 │   ├── index.ts             # contextBridge: expone `window.api` (solo `invoke` con allow-list)
 │   └── index.d.ts           # Tipado global de `window.api`
 ├── shared/                  # Código importable desde main, preload y renderer
+│   ├── content/
+│   │   ├── schema.ts        # Esquema Zod de TODO el contenido editable del manual
+│   │   ├── default-content.ts # Contenido original (el que trae el instalador)
+│   │   ├── package.ts       # Formato del paquete firmado .psm
+│   │   ├── pages.ts         # Ids de las pantallas
+│   │   └── prerequisites.ts # Lógica del simulador de prelaciones
 │   └── ipc/
 │       ├── channels.ts      # Lista de canales (sin dependencias de runtime)
 │       ├── contract.ts      # Schemas Zod de request/response por canal
@@ -68,9 +84,15 @@ src/
     ├── index.html           # Incluye la Content-Security-Policy
     └── src/
         ├── main.tsx / app.tsx
+        ├── assets/          # Logos del IUPSM
         ├── components/ui/   # Componentes shadcn/ui (generados, editables)
-        ├── features/<feature>/  # Pantallas y componentes por funcionalidad
-        ├── lib/             # Utilidades (cn, invoke tipado)
+        ├── components/      # Componentes propios reutilizables (Notice, AudienceTag…)
+        ├── features/<feature>/  # Pantallas por funcionalidad, cada una con su editor
+        │   ├── content/     # ContentProvider + useContent (estado del contenido)
+        │   ├── editor/      # Kit de edición: EditablePage, EditorFrame, campos
+        │   └── shell/       # Barra lateral y barra superior con buscador
+        ├── hooks/           # Hooks reutilizables (usePersistedSet)
+        ├── lib/             # Utilidades (cn, invoke tipado, navegación, búsqueda)
         └── styles/globals.css   # Tailwind v4 + tokens de tema
 ```
 
@@ -78,6 +100,9 @@ Alias de imports:
 
 - `@/…` → `src/renderer/src/…` (solo en el renderer)
 - `@shared/…` → `src/shared/…` (en todos los procesos)
+
+La navegación es un `useState<PageId>` en `app.tsx` (sin router). Agrega un
+router solo si hace falta enlazar o recordar rutas.
 
 Hay dos proyectos TypeScript: `tsconfig.node.json` (main, preload, shared y
 configs) y `tsconfig.web.json` (renderer y shared). `shared/` debe compilar en
@@ -110,6 +135,30 @@ Reglas:
   patrón (contrato tipado + allow-list en el preload). Nunca expongas
   `ipcRenderer.on` genérico.
 
+## Contenido del manual (editable y firmado)
+
+- **Todo texto que la escuela pueda querer cambiar va en el contenido**, no en
+  el código: `src/shared/content/schema.ts` (esquema) y
+  `default-content.ts` (valores originales). La navegación y las etiquetas
+  de la interfaz sí viven en el código (`lib/navigation.ts`).
+- Las pantallas leen el contenido con `useContent().content`. Cada pantalla
+  editable se envuelve en `EditablePage` y tiene su `<feature>-editor.tsx`,
+  que edita su sección con `useSectionDraft('<sección>')`.
+- Para agregar una sección: agrégala al esquema y a `default-content.ts`,
+  crea la página y su editor, y añade tests del esquema.
+- Cambiar el esquema de forma incompatible invalida los paquetes ya
+  publicados (la app vuelve al contenido original). Si hace falta, sube
+  `schemaVersion` y escribe una migración.
+- **Seguridad del contenido**: la app solo muestra contenido original o
+  paquetes `.psm` con firma Ed25519 válida, verificada en main con la llave
+  pública de `src/main/content/public-key.ts`. La edición se desbloquea en
+  memoria (no se guarda) cargando la llave privada cifrada con su
+  contraseña. **La llave privada nunca va al repositorio** (`*.pem` está
+  ignorado). La llave pública actual es **de prueba**: genera la definitiva
+  con `pnpm content:keygen` antes de distribuir.
+- Las preferencias locales (casillas marcadas) se guardan en `localStorage`
+  con `usePersistedSet`; nunca guardes contenido ahí.
+
 ## Reglas de seguridad de Electron (no negociables)
 
 - `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false` y
@@ -129,9 +178,10 @@ Reglas:
 
 ## Convenciones de código
 
-- **Idioma**: identificadores, comentarios de código, commits y textos de la UI
-  en **inglés**. La documentación (`README.md`, `CLAUDE.md`, PRs) en
-  **español**.
+- **Idioma**: identificadores, comentarios de código y commits en **inglés**.
+  Los textos de la UI y del contenido van en **español**, porque la app es
+  para la comunidad del IUPSM. La documentación (`README.md`, `CLAUDE.md`,
+  PRs) también va en **español**.
 - Archivos en `kebab-case` (`welcome-page.tsx`). Componentes en `PascalCase`.
   Hooks con prefijo `useX`.
 - Exports nombrados (no `export default`), salvo en archivos de configuración.
