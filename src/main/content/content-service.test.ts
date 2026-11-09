@@ -248,4 +248,85 @@ describe('ContentService', () => {
     expect(state.warning).not.toBeNull();
     expect((await service.unlock(oldEditor.fileText, oldEditor.passphrase)).status).toBe('invalid');
   });
+
+  describe('importing an older package', () => {
+    /** Publishes `content` with the old editor key at the given date. */
+    async function publishAt(date: string, content: ManualContent = edited): Promise<string> {
+      const service = new ContentService({
+        packageStorage: memoryStorage(),
+        trustStorage: memoryStorage(),
+        bundled: DEFAULT_CONTENT,
+        masterPublicKey: master.publicKey,
+        now: () => new Date(date),
+      });
+      await service.unlock(oldEditor.fileText, oldEditor.passphrase);
+      await service.publish(content);
+      return (await service.exportPackage()) ?? '';
+    }
+
+    const older = { ...edited, home: { ...edited.home, title: 'Versión vieja' } };
+    const newer = { ...edited, home: { ...edited.home, title: 'Versión nueva' } };
+
+    it('asks before replacing newer content and keeps it when cancelled', async () => {
+      const reader = createService();
+      await reader.importPackage(await publishAt('2026-11-10T00:00:00.000Z', newer));
+      const asked: unknown[] = [];
+
+      const result = await reader.importPackage(
+        await publishAt('2026-11-01T00:00:00.000Z', older),
+        (info) => {
+          asked.push(info);
+          return Promise.resolve(false);
+        },
+      );
+
+      expect(result).toEqual({ status: 'cancelled' });
+      expect(asked).toEqual([
+        { incoming: '2026-11-01T00:00:00.000Z', current: '2026-11-10T00:00:00.000Z' },
+      ]);
+      expect((await reader.getState()).content.home.title).toBe('Versión nueva');
+    });
+
+    it('replaces newer content when confirmed', async () => {
+      const reader = createService();
+      await reader.importPackage(await publishAt('2026-11-10T00:00:00.000Z', newer));
+      const result = await reader.importPackage(
+        await publishAt('2026-11-01T00:00:00.000Z', older),
+        () => Promise.resolve(true),
+      );
+      expect(result).toEqual({ status: 'imported' });
+      expect((await reader.getState()).content.home.title).toBe('Versión vieja');
+    });
+
+    it('does not replace newer content when no confirmation is available', async () => {
+      const reader = createService();
+      await reader.importPackage(await publishAt('2026-11-10T00:00:00.000Z', newer));
+      expect(
+        await reader.importPackage(await publishAt('2026-11-01T00:00:00.000Z', older)),
+      ).toEqual({ status: 'cancelled' });
+    });
+
+    it('does not ask for newer, equal-date or first imports', async () => {
+      const reader = createService();
+      const neverAsk = () => Promise.reject(new Error('should not ask'));
+      expect(
+        await reader.importPackage(await publishAt('2026-11-01T00:00:00.000Z', older), neverAsk),
+      ).toEqual({ status: 'imported' });
+      expect(
+        await reader.importPackage(await publishAt('2026-11-10T00:00:00.000Z', newer), neverAsk),
+      ).toEqual({ status: 'imported' });
+      expect(
+        await reader.importPackage(await publishAt('2026-11-10T00:00:00.000Z', newer), neverAsk),
+      ).toEqual({ status: 'imported' });
+    });
+
+    it('ignores a tampered stored package when comparing dates', async () => {
+      const storage = memoryStorage('{"not":"a package"}');
+      const reader = createService(storage);
+      const neverAsk = () => Promise.reject(new Error('should not ask'));
+      expect(
+        await reader.importPackage(await publishAt('2026-11-01T00:00:00.000Z', older), neverAsk),
+      ).toEqual({ status: 'imported' });
+    });
+  });
 });

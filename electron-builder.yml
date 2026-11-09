@@ -18,7 +18,9 @@ win:
   target:
     - target: nsis
       arch: [x64]
-  # Place a 256x256 `build/icon.ico` to brand the executable and installer.
+  # Ícono del ejecutable y del instalador: build/icon.ico (sello del PSM, de
+  # 16 a 256 px). electron-builder lo toma solo desde `buildResources`.
+  icon: build/icon.ico
   # Code signing: set CSC_LINK / CSC_KEY_PASSWORD (or Azure Trusted Signing) in CI.
   # signtoolOptions: {}
 
@@ -28,8 +30,9 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
   createStartMenuShortcut: true
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
+  # Nombre visible del acceso directo y en "Agregar o quitar programas".
+  shortcutName: Manual de Inducción IUPSM
+  uninstallDisplayName: Manual de Inducción IUPSM
   artifactName: ${name}-${version}-setup-${arch}.${ext}
 
 publish: null

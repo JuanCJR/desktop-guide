@@ -31,8 +31,8 @@ de contenido, sin base de datos:
 | **De edición** (`.psmkey`) | Jefatura de Escuela (con una copia) | Editar y publicar el contenido en el día a día |
 
 **Si se pierde o roban la llave de edición**, la jefatura crea otra sin ayuda
-del programador: _Contenido del manual → «¿Se perdió o robaron la llave de
-edición?»_, con la llave maestra y su contraseña. La llave anterior deja de
+del programador: _Contenido del manual → «Crear llave de edición»_, con la
+llave maestra y su contraseña. La llave anterior deja de
 servir en esa computadora y, en las demás, cuando importan el siguiente `.psm`
 publicado con la llave nueva. El contenido ya publicado se sigue mostrando.
 
@@ -58,9 +58,9 @@ existir antes de ejecutar el comando.
    pendrive) y escribe su parte pública en `src/main/content/public-key.ts`.
 3. Haz commit **solo** de `public-key.ts` (la parte pública no es secreta) y
    genera el instalador.
-4. En la app, ve a _Contenido del manual → «¿Se perdió o robaron la llave de
-   edición?»_ y crea la primera llave de edición con la maestra. Entrégala a
-   la jefatura con su propia contraseña.
+4. En la app, ve a _Contenido del manual → «Crear llave de edición»_ y crea
+   la primera llave de edición con la maestra. Entrégala a la jefatura con su
+   propia contraseña.
 5. Guarda la llave maestra en dos lugares seguros (por ejemplo, la Dirección)
    y su contraseña por separado. **Nunca subas llaves privadas al
    repositorio** (`*.pem` y `*.psmkey` están en `.gitignore`).

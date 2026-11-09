@@ -283,7 +283,8 @@ Antes de dar una tarea por terminada:
   en `pnpm install`.
 - TypeScript está fijado en `~6.0` porque `typescript-eslint` todavía no
   soporta TypeScript 7. Revisa la compatibilidad antes de actualizarlo.
-- Ícono: coloca `build/icon.ico` (256×256) para personalizar el ejecutable y
-  el instalador. Mientras no exista, se usa el ícono de Electron.
+- Ícono: `build/icon.ico` es el sello del PSM (de 16 a 256 px) y lo usan el
+  ejecutable y el instalador (`electron-builder.yml`). El acceso directo se
+  llama «Manual de Inducción IUPSM».
 - Firma de código: el instalador no está firmado. Ver comentarios en
   `electron-builder.yml`.

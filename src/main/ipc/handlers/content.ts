@@ -23,7 +23,7 @@ import {
   MAX_PACKAGE_BYTES,
 } from '@shared/content/package';
 
-import type { ContentService } from '../../content/content-service';
+import type { ContentService, OlderPackageInfo } from '../../content/content-service';
 import type { IpcHandler } from '../create-handler';
 
 // Filtros de los diálogos de archivos: solo muestran el tipo de archivo esperado.
@@ -73,6 +73,36 @@ async function pickSavePath(
   return result.canceled || !result.filePath ? null : result.filePath;
 }
 
+// Formato de fecha legible para los avisos, con segundos para distinguir
+// publicaciones del mismo minuto (por ejemplo, "9 de noviembre de 2026, 4:36:12 p. m.").
+const dateFormatter = new Intl.DateTimeFormat('es-VE', { dateStyle: 'long', timeStyle: 'medium' });
+
+// Pregunta con un aviso de Windows si se quiere reemplazar el contenido actual
+// por uno más antiguo. "Cancelar" es la opción por defecto.
+async function confirmOlderPackage(
+  event: IpcMainInvokeEvent,
+  info: OlderPackageInfo,
+): Promise<boolean> {
+  const window = ownerWindow(event);
+  const options: Electron.MessageBoxOptions = {
+    type: 'warning',
+    title: 'Contenido más antiguo',
+    message: 'Este archivo es más antiguo que el contenido que ya tienes.',
+    detail:
+      `Archivo que quieres importar: ${dateFormatter.format(new Date(info.incoming))}\n` +
+      `Contenido actual: ${dateFormatter.format(new Date(info.current))}\n\n` +
+      'Si continúas, esta computadora volverá a la versión anterior del manual.',
+    buttons: ['Cancelar', 'Reemplazar de todas formas'],
+    defaultId: 0,
+    cancelId: 0,
+    noLink: true,
+  };
+  const { response } = window
+    ? await dialog.showMessageBox(window, options)
+    : await dialog.showMessageBox(options);
+  return response === 1;
+}
+
 // Lee un archivo solo si no supera un tamaño máximo, para no cargar archivos
 // enormes por error (o a propósito).
 async function readSmallFile(path: string, maxBytes: number): Promise<string | null> {
@@ -99,8 +129,8 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
       if (!path) return { status: 'cancelled' };
       const raw = await readSmallFile(path, MAX_PACKAGE_BYTES);
       if (raw === null) return { status: 'invalid', message: 'El archivo es demasiado grande.' };
-      const result = await service.importPackage(raw);
-      if (result.status === 'invalid') return result;
+      const result = await service.importPackage(raw, (info) => confirmOlderPackage(event, info));
+      if (result.status !== 'imported') return result;
       return { status: 'imported', state: await service.getState() };
     },
 
