@@ -1,3 +1,18 @@
+/**
+ * Firmas digitales del contenido y de las llaves de edición.
+ *
+ * Una firma digital es como un sello que solo puede poner quien tiene la llave
+ * privada, pero que cualquiera puede comprobar con la llave pública. Aquí se
+ * usan dos niveles:
+ * - La llave MAESTRA de la escuela "certifica" (firma) cada llave de edición.
+ * - Cada llave de EDICIÓN firma los paquetes de contenido que se publican.
+ * Así, la app acepta un contenido solo si lo firmó una llave de edición
+ * certificada por la llave maestra de la escuela (`./public-key.ts`).
+ *
+ * Usa el algoritmo Ed25519 del módulo `node:crypto`. Lo usa
+ * `./content-service.ts`; los formatos de los archivos están en
+ * `src/shared/content/package.ts`.
+ */
 import {
   createPrivateKey,
   createPublicKey,
@@ -29,13 +44,16 @@ export type LoadKeyResult = { ok: true; key: KeyObject } | { ok: false; message:
 export type OpenEditorKeyResult =
   { ok: true; key: KeyObject; certificate: EditorCertificate } | { ok: false; message: string };
 
+// Mensajes de error que se muestran al usuario (en español).
 const INVALID_KEY_FILE = 'El archivo no es una llave de edición válida.';
 const WRONG_KEY_OR_PASSWORD = 'La llave o la contraseña no son correctas.';
 
+// Firma un texto con una llave privada (devuelve la firma en base64).
 function signText(text: string, key: KeyObject): string {
   return sign(null, Buffer.from(text), key).toString('base64');
 }
 
+// Comprueba la firma de un texto con una llave pública; nunca lanza errores.
 function verifyText(text: string, signature: string, key: KeyObject): boolean {
   try {
     return verify(null, Buffer.from(text), key, Buffer.from(signature, 'base64'));
@@ -52,7 +70,7 @@ function parseJson(raw: string): unknown {
   }
 }
 
-/** Parses a bundled Ed25519 public key; returns `null` if missing or invalid. */
+/** Lee una llave pública Ed25519; devuelve `null` si falta o no es válida. */
 export function parsePublicKey(pem: string | null): KeyObject | null {
   if (!pem) return null;
   try {
@@ -63,7 +81,7 @@ export function parsePublicKey(pem: string | null): KeyObject | null {
   }
 }
 
-/** Decrypts an Ed25519 private key PEM with its passphrase. */
+/** Descifra una llave privada Ed25519 (formato PEM) con su contraseña. */
 export function loadPrivateKey(pem: string, passphrase: string): LoadKeyResult {
   try {
     const key = createPrivateKey({ key: pem, format: 'pem', passphrase });
@@ -74,14 +92,14 @@ export function loadPrivateKey(pem: string, passphrase: string): LoadKeyResult {
   }
 }
 
-/** Whether `privateKey` is the counterpart of `publicKey`. */
+/** Indica si `privateKey` es la pareja de `publicKey`. */
 export function keyPairMatches(privateKey: KeyObject, publicKey: KeyObject): boolean {
   const derived = createPublicKey(privateKey).export({ format: 'der', type: 'spki' });
   const expected = publicKey.export({ format: 'der', type: 'spki' });
   return derived.equals(expected);
 }
 
-/** Returns the certified editor public key, or `null` if the master did not sign it. */
+/** Devuelve la llave pública de edición certificada, o `null` si la maestra no la firmó. */
 export function verifyCertificate(
   certificate: EditorCertificate,
   masterPublicKey: KeyObject,
@@ -92,8 +110,8 @@ export function verifyCertificate(
 }
 
 /**
- * Creates a new editor key certified by the master key. Returns the content
- * of the `.psmkey` file (private key encrypted with `passphrase`).
+ * Crea una llave de edición nueva certificada por la llave maestra. Devuelve
+ * el contenido del archivo `.psmkey` (la llave privada cifrada con `passphrase`).
  */
 export function createEditorKeyFile(
   masterPrivateKey: KeyObject,
@@ -120,7 +138,7 @@ export function createEditorKeyFile(
   return { fileText, certificate };
 }
 
-/** Opens a `.psmkey` file: checks the certificate and decrypts the private key. */
+/** Abre un archivo `.psmkey`: revisa su certificado y descifra la llave privada. */
 export function openEditorKeyFile(
   raw: string,
   passphrase: string,
@@ -140,7 +158,7 @@ export function openEditorKeyFile(
   return { ok: true, key: loaded.key, certificate };
 }
 
-/** Builds a package signed with the editor key. */
+/** Arma un paquete de contenido firmado con la llave de edición. */
 export function createPackage(
   content: ManualContent,
   editorKey: KeyObject,
@@ -159,7 +177,11 @@ export function createPackage(
   };
 }
 
-/** Parses and verifies a raw package (certificate + signature + schema). Never throws. */
+/**
+ * Lee y verifica un paquete: que tenga el formato correcto, que su llave esté
+ * certificada por la maestra, que la firma sea válida y que el contenido tenga
+ * la estructura esperada. Nunca lanza errores; devuelve un mensaje si falla.
+ */
 export function openPackage(raw: string, masterPublicKey: KeyObject): OpenPackageResult {
   const envelope = contentPackageSchema.safeParse(parseJson(raw));
   if (!envelope.success) {

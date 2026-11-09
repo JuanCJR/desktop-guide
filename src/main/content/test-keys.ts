@@ -1,8 +1,13 @@
+/**
+ * Utilidades solo para los tests: crean llaves maestras y de edición de prueba
+ * para comprobar el sistema de firmas sin usar las llaves reales de la escuela.
+ * La app no usa este archivo; lo usan los archivos `*.test.ts` de esta carpeta.
+ */
 import { generateKeyPairSync, type KeyObject } from 'node:crypto';
 
 import { createEditorKeyFile, openEditorKeyFile } from './signing';
 
-/** Test helper: a master key pair and its encrypted PEM. */
+/** Para tests: un par de llaves maestras y su versión cifrada (PEM). */
 export function createMasterKey(passphrase = 'maestra-47') {
   const { publicKey, privateKey } = generateKeyPairSync('ed25519');
   const pem = privateKey
@@ -11,7 +16,7 @@ export function createMasterKey(passphrase = 'maestra-47') {
   return { publicKey, privateKey, pem, passphrase };
 }
 
-/** Test helper: an editor key file certified by `masterPrivateKey`. */
+/** Para tests: un archivo de llave de edición certificado por `masterPrivateKey`. */
 export function createEditorKey(
   masterPrivateKey: KeyObject,
   masterPublicKey: KeyObject,
