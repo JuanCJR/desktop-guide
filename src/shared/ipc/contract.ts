@@ -1,20 +1,32 @@
+/**
+ * Contrato de la comunicación (IPC) entre la interfaz y el proceso principal.
+ *
+ * Para cada canal de `./channels.ts` se define qué datos debe enviar la
+ * interfaz (`request`) y qué datos recibe de vuelta (`response`). Las reglas se
+ * escriben con Zod, una librería que comprueba que los datos tengan la forma
+ * esperada (por ejemplo, "un texto de 1 a 200 caracteres").
+ *
+ * El proceso principal (`src/main/ipc/create-handler.ts`) usa este contrato
+ * para validar cada mensaje, así que nunca confía a ciegas en lo que llega.
+ */
 import { z } from 'zod';
 
 import { contentStateSchema, manualContentSchema } from '../content/schema';
 import type { IpcChannel } from './channels';
 
+// Respuestas comunes: "datos no válidos" (con un mensaje) y "el usuario canceló".
 const invalidResult = z.object({ status: z.literal('invalid'), message: z.string() });
 const cancelledResult = z.object({ status: z.literal('cancelled') });
 
 /**
- * Request/response schemas for every IPC channel.
+ * Esquemas de petición y respuesta de cada canal IPC.
  *
- * The main process validates every incoming request against `request` and
- * every outgoing payload against `response`, so the renderer is never
- * trusted blindly. Adding a channel here (and in `channels.ts`) is a
- * compile-time requirement enforced by `satisfies`.
+ * El proceso principal valida cada petición que llega contra `request` y cada
+ * respuesta que sale contra `response`. Si se agrega un canal a `channels.ts`
+ * y falta aquí, la compilación falla (lo obliga el `satisfies` del final).
  */
 export const ipcContract = {
+  // Información general de la app y canal de prueba.
   'app:get-info': {
     request: z.undefined(),
     response: z.object({
@@ -37,6 +49,7 @@ export const ipcContract = {
       receivedAt: z.iso.datetime(),
     }),
   },
+  // Contenido del manual: leer, publicar, importar, exportar y restablecer.
   'content:get': {
     request: z.undefined(),
     response: contentStateSchema,
@@ -64,6 +77,7 @@ export const ipcContract = {
     request: z.undefined(),
     response: contentStateSchema,
   },
+  // Modo edición: desbloquear con una llave, bloquear y crear una llave nueva.
   'editor:unlock': {
     request: z.object({ passphrase: z.string().min(1).max(200) }),
     response: z.discriminatedUnion('status', [
@@ -94,8 +108,8 @@ export const ipcContract = {
 
 export type IpcContract = typeof ipcContract;
 
-/** What the renderer must send for a channel. */
+/** Lo que la interfaz debe enviar por un canal. */
 export type IpcRequest<C extends IpcChannel> = z.input<IpcContract[C]['request']>;
 
-/** What the renderer receives for a channel. */
+/** Lo que la interfaz recibe de vuelta por un canal. */
 export type IpcResponse<C extends IpcChannel> = z.output<IpcContract[C]['response']>;

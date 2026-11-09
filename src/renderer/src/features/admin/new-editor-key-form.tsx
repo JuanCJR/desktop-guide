@@ -1,3 +1,12 @@
+/**
+ * Formulario para crear una llave de edición nueva (dentro de "Contenido del
+ * manual", en `./content-admin-page.tsx`).
+ *
+ * Sirve cuando la llave de edición se pierde o la roban: con la llave maestra
+ * de la escuela se crea una nueva, y las anteriores dejan de funcionar. La
+ * creación real ocurre en el proceso principal
+ * (`src/main/content/content-service.ts`).
+ */
 import { KeySquare } from 'lucide-react';
 import { useState } from 'react';
 
@@ -9,8 +18,9 @@ import { type ActionResult, useContent } from '@/features/content/content-contex
 const MIN_LENGTH = 8;
 
 /**
- * Lets the school replace a lost or stolen editor key on its own, using the
- * master key. Hidden inside a <details> so it does not distract other users.
+ * Permite que la escuela reemplace por su cuenta una llave de edición perdida
+ * o robada, usando la llave maestra. Va dentro de un bloque plegable
+ * (<details>) para no distraer al resto de los usuarios.
  */
 export function NewEditorKeyForm({
   busy,
@@ -24,6 +34,7 @@ export function NewEditorKeyForm({
   const [newPassphrase, setNewPassphrase] = useState('');
   const [confirmation, setConfirmation] = useState('');
 
+  // Revisiones antes de enviar: contraseña nueva con el largo mínimo y confirmación igual.
   const tooShort = newPassphrase.length > 0 && newPassphrase.length < MIN_LENGTH;
   const mismatch = confirmation.length > 0 && confirmation !== newPassphrase;
   const ready =
@@ -36,6 +47,7 @@ export function NewEditorKeyForm({
       <summary className="cursor-pointer font-medium text-brand marker:text-brand-accent">
         ¿Se perdió o robaron la llave de edición?
       </summary>
+      {/* Al enviar, se pide la llave maestra y dónde guardar la nueva; si sale bien, se limpian los campos. */}
       <form
         className="mt-4 space-y-3"
         onSubmit={(event) => {

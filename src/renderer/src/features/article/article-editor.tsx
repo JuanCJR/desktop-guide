@@ -1,3 +1,14 @@
+/**
+ * Formulario de edición de la pantalla genérica de artículo.
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./article-page.tsx`). Trabaja sobre un borrador de la parte `articleKey` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Permite cambiar el título, la introducción y cada sección (agregar,
+ * quitar o reordenar secciones y sus elementos).
+ */
 import {
   AddButton,
   ItemCard,
@@ -12,6 +23,7 @@ import { moveItem, removeAt, replaceAt } from '@/lib/list';
 import { newId } from '@/lib/new-id';
 import type { ArticleKey, ArticleSection, NoticeTone, SectionStyle } from '@shared/content/schema';
 
+// Opciones que se muestran en las listas desplegables del formulario.
 const STYLE_OPTIONS = [
   ['numbered', 'Pasos numerados'],
   ['bulleted', 'Lista con viñetas'],
@@ -23,6 +35,7 @@ const TONE_OPTIONS = [
   ['warning', 'Importante (naranja)'],
 ] as const satisfies readonly (readonly [NoticeTone, string])[];
 
+// Campos de una sección: título, texto, estilo, elementos y aviso.
 function SectionFields({
   section,
   onChange,

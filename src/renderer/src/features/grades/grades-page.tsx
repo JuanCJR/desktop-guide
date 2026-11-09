@@ -1,3 +1,10 @@
+/**
+ * Pantalla "Consulta de notas" (menú Estudiantes).
+ *
+ * Explica cómo consultar las notas: dónde hacerlo, con qué usuario y
+ * contraseña, y el paso a paso. Los datos salen del contenido del manual
+ * (`grades`); su formulario de edición está en `./grades-editor.tsx`.
+ */
 import { KeyRound, MapPin, UserRound } from 'lucide-react';
 
 import { Notice } from '@/components/notice';
@@ -14,6 +21,7 @@ export function GradesPage() {
     <EditablePage editor={(close) => <GradesEditor onClose={close} />}>
       <PageHeader title={grades.title} description={grades.intro} />
 
+      {/* Tres tarjetas: lugar, usuario y contraseña. */}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-xl border bg-card p-5">
           <MapPin className="size-5 text-brand-accent" aria-hidden />
@@ -38,6 +46,7 @@ export function GradesPage() {
         </div>
       </div>
 
+      {/* Pasos para consultar las notas. */}
       <section className="mt-6 rounded-xl border bg-card p-6">
         <h2 className="text-lg font-semibold text-brand">Paso a paso</h2>
         <ol className="mt-4 space-y-3">

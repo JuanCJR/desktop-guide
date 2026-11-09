@@ -1,3 +1,11 @@
+/**
+ * Envoltorio que hace "editable" una pantalla.
+ *
+ * Normalmente solo muestra la pantalla. Cuando el modo edición está activo
+ * (se cargó la llave de la escuela), agrega arriba una barra con el botón
+ * "Editar esta página", que cambia la vista por el formulario de edición de
+ * esa pantalla. Lo usan las pantallas de `src/renderer/src/features/`.
+ */
 import { Pencil } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
@@ -5,8 +13,8 @@ import { Button } from '@/components/ui/button';
 import { useContent } from '@/features/content/content-context';
 
 /**
- * Shows the page normally; when the school key is loaded it adds an
- * "Editar esta página" bar that swaps the view for its editor.
+ * Muestra la pantalla normal; con la llave de la escuela cargada agrega una
+ * barra "Editar esta página" que cambia la vista por su formulario de edición.
  */
 export function EditablePage({
   children,

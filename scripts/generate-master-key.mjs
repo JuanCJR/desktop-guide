@@ -1,42 +1,50 @@
-// Generates the school's MASTER key. Run it once, before distributing the app.
+// Script para generar la llave MAESTRA de la escuela. Se ejecuta una sola vez,
+// antes de distribuir la aplicación, desde una terminal:
 //
 //   pnpm content:master-key <output-master-key.pem>
 //
-// - Writes the master private key, encrypted with a passphrase, to the given
-//   path. Keep it OUT of the repository and away from day-to-day use (e.g. a
-//   sealed USB drive at the Direction). It is only needed to create a new
-//   editor key from the app when one is lost or stolen.
-// - Writes the master public key to src/main/content/public-key.ts. Commit
-//   that file and build the installer so every copy of the app trusts it.
+// Qué hace:
+// - Escribe la llave maestra privada, cifrada con una contraseña, en la ruta
+//   indicada. Esa llave debe quedar FUERA del repositorio y lejos del uso
+//   diario (por ejemplo, en un pendrive guardado en la Dirección). Solo hace
+//   falta para crear una llave de edición nueva desde la app cuando una se
+//   pierde o la roban.
+// - Escribe la llave maestra pública en src/main/content/public-key.ts. Ese
+//   archivo sí se guarda en el repositorio, y al generar el instalador cada
+//   copia de la app confía en él.
 //
-// Editor keys (the ones used to edit) are created inside the app, in
-// "Contenido del manual", with this master key.
+// Las llaves de edición (las que se usan para editar el manual) se crean dentro
+// de la app, en "Contenido del manual", usando esta llave maestra.
 //
-// The passphrase is read from CONTENT_KEY_PASSPHRASE or asked twice
-// interactively, without echoing it on screen.
+// La contraseña se lee de la variable CONTENT_KEY_PASSPHRASE o se pide dos
+// veces en la terminal, sin mostrarla en pantalla.
 import { generateKeyPairSync } from 'node:crypto';
 import { existsSync, writeFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 
+// Largo mínimo obligatorio y largo recomendado de la contraseña.
 const MIN_LENGTH = 8;
 const RECOMMENDED_LENGTH = 12;
+// Carpeta raíz del proyecto: la llave privada nunca debe quedar dentro de ella.
 const repoRoot = resolve(import.meta.dirname, '..');
 
-/** Line reader shared by every question when stdin is not a terminal. */
+/** Lector de líneas compartido por todas las preguntas cuando la entrada no es una terminal. */
 let pipedLines = null;
 
-/** Reads a line from the terminal without showing what is typed. */
+/** Lee una línea de la terminal sin mostrar lo que se escribe. */
 async function askHidden(prompt) {
   if (!stdin.isTTY) {
-    // Not a terminal (e.g. piped input): read the next line as-is.
+    // No es una terminal (por ejemplo, entrada por tubería): lee la siguiente línea tal cual.
     stdout.write(prompt);
     pipedLines ??= createInterface({ input: stdin, terminal: false })[Symbol.asyncIterator]();
     const { value } = await pipedLines.next();
     stdout.write('\n');
     return value ?? '';
   }
+  // Terminal real: lee tecla por tecla sin mostrarlas. Enter termina, Ctrl+C
+  // cancela y Retroceso borra el último carácter.
   return new Promise((resolvePromise) => {
     let value = '';
     stdout.write(prompt);
@@ -71,6 +79,9 @@ async function askHidden(prompt) {
   });
 }
 
+// Valida la ruta de salida: es obligatoria, no puede estar dentro del
+// repositorio (para no subirla por accidente) y nunca se sobrescribe una llave
+// existente, para no perder una llave maestra.
 const output = process.argv[2];
 if (!output) {
   console.error('Usage: pnpm content:master-key <output-master-key.pem>');
@@ -90,6 +101,8 @@ if (existsSync(outputPath)) {
   process.exit(1);
 }
 
+// Obtiene la contraseña que protegerá la llave maestra. Se pide dos veces para
+// evitar errores de tipeo: si no coinciden, no se escribe nada.
 let passphrase = process.env.CONTENT_KEY_PASSPHRASE ?? '';
 if (!passphrase) {
   passphrase = await askHidden(
@@ -110,21 +123,30 @@ if (passphrase.length < RECOMMENDED_LENGTH) {
   console.warn(`Warning: a passphrase of ${RECOMMENDED_LENGTH}+ characters is recommended.`);
 }
 
+// Crea el par de llaves (privada + pública) con el algoritmo Ed25519. La
+// privada queda cifrada con la contraseña.
 const { publicKey, privateKey } = generateKeyPairSync('ed25519', {
   publicKeyEncoding: { type: 'spki', format: 'pem' },
   privateKeyEncoding: { type: 'pkcs8', format: 'pem', cipher: 'aes-256-cbc', passphrase },
 });
 
+// Guarda la llave privada con permisos restringidos (solo el dueño la lee).
 writeFileSync(outputPath, privateKey, { mode: 0o600 });
 
+// Reescribe src/main/content/public-key.ts con la llave pública nueva, con el
+// mismo comentario explicativo que ya tiene ese archivo.
 const publicKeyFile = resolve(import.meta.dirname, '../src/main/content/public-key.ts');
 writeFileSync(
   publicKeyFile,
   `/**
- * Public half of the school's master key, which certifies editor keys.
- * Generated with \`pnpm content:master-key\`; replacing it invalidates every
- * editor key and package made with the previous one. The master private key
- * must never be committed.
+ * Mitad pública de la llave maestra de la escuela, que certifica las llaves de
+ * edición. La usa \`../ipc/register.ts\` para que la app pueda comprobar que el
+ * contenido y las llaves fueron creados por la escuela.
+ *
+ * Se genera con \`pnpm content:master-key\` (ver
+ * \`scripts/generate-master-key.mjs\`); reemplazarla invalida todas las llaves de
+ * edición y paquetes de contenido creados con la anterior. La llave maestra
+ * privada nunca debe guardarse en el repositorio.
  */
 export const MASTER_PUBLIC_KEY_PEM: string | null = \`${publicKey.trim()}\`;
 `,

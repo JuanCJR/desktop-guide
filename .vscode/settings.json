@@ -7,5 +7,18 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "files.eol": "\n",
-  "tailwindCSS.experimental.configFile": "src/renderer/src/styles/globals.css"
+  "tailwindCSS.experimental.configFile": "src/renderer/src/styles/globals.css",
+  "files.exclude": {
+    "node_modules": true,
+    "out": true,
+    "release": true,
+    ".atl": true,
+    ".eslintcache": true
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "README.md": "CLAUDE.md",
+    "package.json": "pnpm-lock.yaml, .npmrc, .nvmrc, components.json, electron-builder.yml, electron.vite.config.ts, vitest.config.mts, eslint.config.mjs, .prettierrc.json, .prettierignore, .editorconfig, .gitattributes, .gitignore, tsconfig*.json"
+  }
 }

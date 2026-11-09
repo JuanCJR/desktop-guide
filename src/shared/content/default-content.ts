@@ -1,6 +1,21 @@
+/**
+ * Contenido ORIGINAL del manual, incluido dentro de la aplicación.
+ *
+ * Aquí están todos los textos que muestra la app recién instalada: la
+ * bienvenida, los pasos de inscripción, las materias y prelaciones, el
+ * calendario, las preguntas frecuentes, el directorio, etc. Este contenido se
+ * muestra hasta que la escuela publique cambios desde el modo edición (ver
+ * `src/main/content/content-service.ts`); también es el contenido al que se
+ * vuelve con "restablecer".
+ *
+ * La forma de estos datos (qué campos lleva cada pantalla y sus límites) está
+ * definida en `./schema.ts`. Está dividido en secciones, una por pantalla.
+ * Para corregir un texto del contenido original, se edita aquí y se genera
+ * un instalador nuevo.
+ */
 import type { ArticleSection, ManualContent, NoticeTone, SectionStyle } from './schema';
 
-/** Builds an article section with empty optional fields. */
+/** Arma una sección de artículo con los campos opcionales vacíos. */
 function section(
   id: string,
   title: string,
@@ -12,12 +27,13 @@ function section(
 }
 
 /**
- * Content bundled with the installer. It is shown until the school publishes
- * a signed content package. Source: "Manual Informativo de Apoyo para la
+ * Contenido incluido en el instalador. Se muestra hasta que la escuela publica
+ * un paquete de contenido firmado. Fuente: "Manual Informativo de Apoyo para la
  * Inducción de Docentes y Estudiantes de Nuevo Ingreso" (Escuela 47, 2026).
  */
 export const DEFAULT_CONTENT: ManualContent = {
   schemaVersion: 1,
+  // ----- Pantalla de inicio -----
   home: {
     title: 'Bienvenido a la Escuela de Ingeniería de Sistemas',
     intro:
@@ -77,6 +93,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       },
     ],
   },
+  // ----- Inscripción: pasos del proceso -----
   enrollment: {
     title: 'Inscripción al 2º semestre',
     intro:
@@ -165,6 +182,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       },
     ],
   },
+  // ----- Consulta de notas -----
   grades: {
     title: '¿Dónde consulto mis notas?',
     intro:
@@ -180,6 +198,7 @@ export const DEFAULT_CONTENT: ManualContent = {
     ],
     note: 'Este récord es el que necesitas en el paso 1 de la inscripción al 2º semestre.',
   },
+  // ----- Prelaciones: materias de 1er y 2do semestre -----
   prerequisites: {
     title: 'Simulador de prelaciones',
     intro:
@@ -231,6 +250,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       { code: '4702232', name: 'Física I', credits: 3, prerequisites: ['4701141'] },
     ],
   },
+  // ----- Artículo: primer ingreso a SAIA -----
   saiaFirstLogin: {
     title: 'Primer ingreso a SAIA',
     intro:
@@ -263,6 +283,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ),
     ],
   },
+  // ----- Artículo: trámites y justificativos -----
   procedures: {
     title: 'Trámites y justificativos',
     intro:
@@ -300,6 +321,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ]),
     ],
   },
+  // ----- Artículo: cursos de verano -----
   summer: {
     title: 'Cursos de verano',
     intro:
@@ -326,6 +348,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ),
     ],
   },
+  // ----- Artículo: normas y carnet -----
   rules: {
     title: 'Normas y carnet',
     intro:
@@ -370,6 +393,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ),
     ],
   },
+  // ----- Artículo (docentes): ingreso y expediente -----
   teacherOnboarding: {
     title: 'Ingreso y expediente',
     intro:
@@ -420,6 +444,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ]),
     ],
   },
+  // ----- Artículo (docentes): PGA y notas en SAIA -----
   teacherSaia: {
     title: 'PGA y notas en SAIA',
     intro:
@@ -474,6 +499,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ]),
     ],
   },
+  // ----- Artículo (docentes): permisos, asistencia y solvencia -----
   teacherProcedures: {
     title: 'Permisos, asistencia y solvencia',
     intro:
@@ -537,6 +563,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       ),
     ],
   },
+  // ----- Calendario académico de docentes -----
   teacherCalendar: {
     title: 'Calendario del semestre',
     intro:
@@ -623,6 +650,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       },
     ],
   },
+  // ----- Preguntas frecuentes -----
   faq: {
     title: 'Preguntas frecuentes',
     intro: 'Respuestas rápidas a las dudas más comunes de estudiantes y docentes.',
@@ -745,6 +773,7 @@ export const DEFAULT_CONTENT: ManualContent = {
       },
     ],
   },
+  // ----- Directorio de oficinas -----
   directory: {
     title: 'Directorio',
     intro:

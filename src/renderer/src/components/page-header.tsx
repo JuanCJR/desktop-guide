@@ -1,3 +1,7 @@
+/**
+ * Encabezado común de las pantallas: título grande, descripción opcional y,
+ * a la derecha, botones de acción opcionales (por ejemplo, "Editar").
+ */
 import type { ReactNode } from 'react';
 
 export function PageHeader({

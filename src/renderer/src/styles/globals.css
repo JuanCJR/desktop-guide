@@ -1,3 +1,14 @@
+/*
+ * Estilos globales de la interfaz.
+ *
+ * Aquí se definen los colores de la app (la paleta azul marino y blanco del
+ * IUPSM), los bordes redondeados y la fuente. Los componentes no usan colores
+ * sueltos: usan estos nombres (por ejemplo, `brand` o `warning`), así que
+ * para cambiar un color en toda la app basta con cambiarlo aquí.
+ *
+ * Usa Tailwind CSS (un sistema de estilos por clases). Se carga desde
+ * `../main.tsx`.
+ */
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -6,7 +17,7 @@
 :root {
   --radius: 0.625rem;
 
-  /* IUPSM palette: navy blue and white */
+  /* Paleta del IUPSM: azul marino y blanco */
   --brand: #0b2559;
   --brand-foreground: #ffffff;
   --brand-accent: #1e4aa0;
@@ -20,6 +31,7 @@
   --sidebar-foreground: #c9d5ee;
   --sidebar-active: #1e4aa0;
 
+  /* Colores generales: fondo, texto, tarjetas, bordes, etc. */
   --background: #f7f9fd;
   --foreground: #0f1b33;
   --card: #ffffff;
@@ -40,6 +52,7 @@
   --ring: #1e4aa0;
 }
 
+/* Colores del modo oscuro (heredados de la plantilla de shadcn/ui). */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -61,6 +74,8 @@
   --ring: oklch(0.556 0 0);
 }
 
+/* Conecta los colores anteriores con los nombres de clase de Tailwind
+   (por ejemplo, `--brand` permite usar `bg-brand` o `text-brand`). */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -98,6 +113,7 @@
   --color-sidebar-active: var(--sidebar-active);
 }
 
+/* Estilos base de toda la página: bordes, fondo, color de texto y fuente. */
 @layer base {
   * {
     @apply border-border outline-ring/50;

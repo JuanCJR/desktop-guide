@@ -1,9 +1,13 @@
+/**
+ * Recuadro de aviso destacado que se usa en varias pantallas: en amarillo
+ * para advertencias y reglas obligatorias, en azul para consejos.
+ */
 import { CircleAlert, Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
-/** Highlighted message: `warning` for mandatory rules, `info` for tips. */
+/** Mensaje destacado: `warning` para reglas obligatorias, `info` para consejos. */
 export function Notice({
   tone = 'warning',
   children,

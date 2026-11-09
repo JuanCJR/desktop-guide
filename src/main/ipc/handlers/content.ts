@@ -1,3 +1,17 @@
+/**
+ * Handlers (funciones que responden a la interfaz) del contenido del manual y
+ * de las llaves de edición.
+ *
+ * Aquí se atienden las acciones de la pantalla "Contenido del manual" y del
+ * modo edición: leer el contenido, publicar cambios, importar o exportar el
+ * archivo de contenido (`.psm`), volver al contenido original, desbloquear o
+ * bloquear la edición con una llave, y crear una llave de edición nueva.
+ *
+ * Este archivo se encarga de la parte "de escritorio" (abrir los diálogos de
+ * Windows para elegir o guardar archivos). Las reglas de negocio y las firmas
+ * viven en `src/main/content/content-service.ts`. Se registra en
+ * `../register.ts`.
+ */
 import { readFile, stat, writeFile } from 'node:fs/promises';
 
 import { BrowserWindow, dialog, type IpcMainInvokeEvent } from 'electron';
@@ -12,6 +26,7 @@ import {
 import type { ContentService } from '../../content/content-service';
 import type { IpcHandler } from '../create-handler';
 
+// Filtros de los diálogos de archivos: solo muestran el tipo de archivo esperado.
 const PACKAGE_FILTERS = [{ name: 'Contenido del manual', extensions: [CONTENT_PACKAGE_EXTENSION] }];
 const EDITOR_KEY_FILTERS = [{ name: 'Llave de edición', extensions: [EDITOR_KEY_EXTENSION] }];
 const MASTER_KEY_FILTERS = [{ name: 'Llave maestra', extensions: ['pem'] }];
@@ -27,10 +42,12 @@ interface ContentHandlers {
   'editor:create-key': IpcHandler<'editor:create-key'>;
 }
 
+// Ventana sobre la que se abren los diálogos (para que queden "encima" de la app).
 function ownerWindow(event: IpcMainInvokeEvent): BrowserWindow | null {
   return BrowserWindow.fromWebContents(event.sender);
 }
 
+// Abre el diálogo "Abrir archivo" de Windows; devuelve `null` si se cancela.
 async function pickFile(
   event: IpcMainInvokeEvent,
   title: string,
@@ -44,6 +61,7 @@ async function pickFile(
   return result.canceled ? null : (result.filePaths[0] ?? null);
 }
 
+// Abre el diálogo "Guardar como" de Windows; devuelve `null` si se cancela.
 async function pickSavePath(
   event: IpcMainInvokeEvent,
   options: Electron.SaveDialogOptions,
@@ -55,6 +73,8 @@ async function pickSavePath(
   return result.canceled || !result.filePath ? null : result.filePath;
 }
 
+// Lee un archivo solo si no supera un tamaño máximo, para no cargar archivos
+// enormes por error (o a propósito).
 async function readSmallFile(path: string, maxBytes: number): Promise<string | null> {
   const info = await stat(path);
   if (info.size > maxBytes) return null;
@@ -63,14 +83,17 @@ async function readSmallFile(path: string, maxBytes: number): Promise<string | n
 
 export function createContentHandlers(service: ContentService): ContentHandlers {
   return {
+    // Devuelve el contenido que se muestra ahora y el estado del modo edición.
     'content:get': () => service.getState(),
 
+    // Guarda y firma los cambios hechos en el modo edición.
     'content:publish': async (content) => {
       const result = await service.publish(content);
       if (result.status === 'locked') return result;
       return { status: 'published', state: await service.getState() };
     },
 
+    // Carga un archivo de contenido recibido de otro computador (se verifica su firma).
     'content:import': async (_request, event) => {
       const path = await pickFile(event, 'Importar contenido del manual', PACKAGE_FILTERS);
       if (!path) return { status: 'cancelled' };
@@ -81,6 +104,7 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
       return { status: 'imported', state: await service.getState() };
     },
 
+    // Guarda una copia del contenido publicado para llevarla a otros computadores.
     'content:export': async (_request, event) => {
       const raw = await service.exportPackage();
       if (raw === null) return { status: 'nothing-to-export' };
@@ -94,11 +118,13 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
       return { status: 'saved' };
     },
 
+    // Vuelve al contenido original que viene con la app.
     'content:reset': async () => {
       await service.reset();
       return service.getState();
     },
 
+    // Activa el modo edición: pide el archivo de la llave y lo abre con la contraseña.
     'editor:unlock': async ({ passphrase }, event) => {
       const path = await pickFile(event, 'Selecciona tu llave de edición', EDITOR_KEY_FILTERS);
       if (!path) return { status: 'cancelled' };
@@ -111,11 +137,14 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
       return { status: 'unlocked', state: await service.getState() };
     },
 
+    // Sale del modo edición.
     'editor:lock': () => {
       service.lock();
       return service.getState();
     },
 
+    // Crea una llave de edición nueva usando la llave maestra. La nueva llave
+    // reemplaza a las anteriores (útil si una se perdió o la robaron).
     'editor:create-key': async ({ masterPassphrase, newPassphrase }, event) => {
       const masterPath = await pickFile(event, 'Selecciona la llave maestra', MASTER_KEY_FILTERS);
       if (!masterPath) return { status: 'cancelled' };
