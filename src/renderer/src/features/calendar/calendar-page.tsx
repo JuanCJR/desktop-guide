@@ -1,3 +1,14 @@
+/**
+ * Pantalla "Calendario del semestre" (menú Docentes).
+ *
+ * Muestra:
+ * - una línea de tiempo con las semanas del semestre, coloreada por cortes de
+ *   evaluación; al elegir una semana se ven sus entregas y actividades,
+ * - la lista completa de fechas clave de todo el semestre.
+ *
+ * Los datos salen del contenido del manual (`teacherCalendar`); su formulario
+ * de edición está en `./calendar-editor.tsx`.
+ */
 import { useState } from 'react';
 
 import { PageHeader } from '@/components/page-header';
@@ -8,11 +19,12 @@ import type { Calendar } from '@shared/content/schema';
 
 import { CalendarEditor } from './calendar-editor';
 
-/** Background shades for consecutive cuts (tokens only). */
+/** Tonos de fondo para distinguir cortes consecutivos (solo colores del tema). */
 const CUT_SHADES = ['bg-brand-accent/10', 'bg-brand-accent/20', 'bg-brand-accent/30'];
 
 const weekLabel = (week: number) => (week === 0 ? 'Antes de iniciar' : `Semana ${week}`);
 
+// Indica a qué corte de evaluación pertenece una semana.
 function cutIndexOf(calendar: Calendar, week: number): number {
   return calendar.cuts.findIndex((cut) => week >= cut.fromWeek && week <= cut.toWeek);
 }
@@ -21,6 +33,7 @@ export function CalendarPage() {
   const calendar = useContent().content.teacherCalendar;
   const weeks = Array.from({ length: calendar.totalWeeks + 1 }, (_, week) => week);
   const milestoneWeeks = new Set(calendar.milestones.map((m) => m.week));
+  // Semana elegida en la línea de tiempo (empieza en la del primer hito).
   const [selected, setSelected] = useState<number>(calendar.milestones[0]?.week ?? 1);
   const selectedMilestones = calendar.milestones.filter((m) => m.week === selected);
   const grouped = weeks
@@ -31,6 +44,7 @@ export function CalendarPage() {
     <EditablePage editor={(close) => <CalendarEditor onClose={close} />}>
       <PageHeader title={calendar.title} description={calendar.intro} />
 
+      {/* Línea de tiempo: una columna por semana, coloreada por corte. */}
       <section className="rounded-xl border bg-card p-6">
         <div
           className="grid gap-1.5"
@@ -82,6 +96,7 @@ export function CalendarPage() {
         </p>
       </section>
 
+      {/* Entregas y actividades de la semana elegida. */}
       <section className="mt-5" aria-live="polite">
         <h2 className="mb-3 text-xs font-bold tracking-widest text-muted-foreground uppercase">
           {weekLabel(selected)}
@@ -105,6 +120,7 @@ export function CalendarPage() {
         )}
       </section>
 
+      {/* Todas las fechas del semestre, agrupadas por semana. */}
       <section className="mt-8">
         <h2 className="mb-3 text-lg font-semibold text-brand">Todo el semestre</h2>
         <ol className="space-y-4 border-l-2 border-brand-soft pl-5">

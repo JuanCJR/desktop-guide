@@ -1,3 +1,14 @@
+/**
+ * Pantalla "Mi ruta de inscripción" (menú Estudiantes).
+ *
+ * Guía al estudiante paso a paso por el proceso de inscripción: arriba una
+ * barra con todos los pasos y, debajo, el detalle del paso elegido (dónde ir,
+ * qué llevar y qué tareas hacer). Las tareas marcadas como hechas se
+ * recuerdan en este computador (`@/hooks/use-persisted-set.ts`).
+ *
+ * Los datos salen del contenido del manual (`enrollment`); su formulario de
+ * edición está en `./enrollment-editor.tsx`.
+ */
 import { ArrowLeft, ArrowRight, Check, MapPin, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 
@@ -12,6 +23,7 @@ import type { EnrollmentStep } from '@shared/content/schema';
 
 import { EnrollmentEditor } from './enrollment-editor';
 
+// Un paso está completo cuando todas sus tareas están marcadas.
 const isStepDone = (step: EnrollmentStep, checked: ReadonlySet<string>) =>
   step.tasks.every((task) => checked.has(task.id));
 
@@ -19,6 +31,7 @@ export function EnrollmentPage() {
   const { enrollment } = useContent().content;
   const { steps } = enrollment;
   const { values: checked, toggle, clear } = usePersistedSet('enrollment-checklist');
+  // Al abrir la pantalla se muestra el primer paso que aún no está completo.
   const firstPending = steps.findIndex((step) => !isStepDone(step, checked));
   const [selected, setSelected] = useState(firstPending === -1 ? 0 : firstPending);
   const index = Math.min(selected, steps.length - 1);
@@ -40,6 +53,7 @@ export function EnrollmentPage() {
         }
       />
 
+      {/* Barra de pasos: indica cuáles están completos y cuál se está viendo. */}
       <ol className="flex rounded-xl border bg-card px-6 py-5">
         {steps.map((item, i) => {
           const done = isStepDone(item, checked);
@@ -86,6 +100,7 @@ export function EnrollmentPage() {
         })}
       </ol>
 
+      {/* Detalle del paso elegido: lugar, qué llevar, tareas y aviso. */}
       <article className="mt-5 rounded-xl border bg-card p-6">
         <p className="text-xs font-bold tracking-widest text-brand-accent uppercase">
           Paso {index + 1} de {steps.length}

@@ -1,3 +1,13 @@
+/**
+ * Formulario de edición de la pantalla de inicio.
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./home-page.tsx`). Trabaja sobre un borrador de la parte `home` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Permite cambiar la bienvenida, las tarjetas de perfil y los accesos rápidos.
+ */
 import { Label } from '@/components/ui/label';
 import { AddButton, ItemCard, ItemControls, TextField } from '@/features/editor/fields';
 import { EditorFrame } from '@/features/editor/editor-frame';
@@ -69,6 +79,7 @@ export function HomeEditor({ onClose }: { onClose: () => void }) {
         ))}
       </div>
 
+      {/* Accesos rápidos: título, descripción, público y pantalla de destino. */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand">Lo más consultado</h2>
         {links.map((link, index) => {

@@ -1,3 +1,13 @@
+/**
+ * Formulario de edición de la pantalla "Mi ruta de inscripción".
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./enrollment-page.tsx`). Trabaja sobre un borrador de la parte `enrollment` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Permite agregar, quitar y reordenar pasos, y editar las tareas de cada uno.
+ */
 import {
   AddButton,
   ItemCard,
@@ -12,6 +22,7 @@ import { moveItem, removeAt, replaceAt } from '@/lib/list';
 import { newId } from '@/lib/new-id';
 import type { EnrollmentStep } from '@shared/content/schema';
 
+// Campos de un paso: etiqueta, título, lugar, qué llevar, tareas y aviso.
 function StepFields({
   step,
   onChange,

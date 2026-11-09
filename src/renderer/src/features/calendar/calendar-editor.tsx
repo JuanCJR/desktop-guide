@@ -1,3 +1,13 @@
+/**
+ * Formulario de edición de la pantalla "Calendario del semestre".
+ *
+ * Aparece al pulsar "Editar esta página" en modo edición (ver
+ * `./calendar-page.tsx`). Trabaja sobre un borrador de la parte `teacherCalendar` del manual
+ * (`@/features/editor/use-section-draft.ts`) y, al guardar, publica el
+ * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
+ * los límites de cada campo están en `src/shared/content/schema.ts`.
+ * Al guardar se revisa que los porcentajes de los cortes sumen 100%.
+ */
 import { AddButton, ItemCard, ItemControls, TextField } from '@/features/editor/fields';
 import { EditorFrame } from '@/features/editor/editor-frame';
 import { NumberField } from '@/features/editor/select-field';
@@ -53,6 +63,7 @@ export function CalendarEditor({ onClose }: { onClose: () => void }) {
         </div>
       </ItemCard>
 
+      {/* Cortes de evaluación: nombre, porcentaje y semanas que abarcan. */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand">Cortes</h2>
         {cuts.map((cut, index) => {
@@ -130,6 +141,7 @@ export function CalendarEditor({ onClose }: { onClose: () => void }) {
         </AddButton>
       </section>
 
+      {/* Fechas clave del semestre (entregas, actividades). */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-brand">Entregas y actividades</h2>
         <p className="text-sm text-muted-foreground">Usa la semana 0 para «antes de iniciar».</p>

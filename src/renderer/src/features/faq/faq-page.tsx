@@ -1,3 +1,11 @@
+/**
+ * Pantalla "Preguntas frecuentes" (menú General).
+ *
+ * Muestra las preguntas como bloques que se abren al hacer clic, con botones
+ * para filtrar por público (todas, estudiantes o docentes). Los datos salen
+ * del contenido del manual (`faq`); su formulario de edición está en
+ * `./faq-editor.tsx`.
+ */
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
@@ -10,6 +18,7 @@ import type { Audience } from '@shared/content/schema';
 
 import { FaqEditor } from './faq-editor';
 
+// Filtro elegido: un público concreto o todas las preguntas.
 type Filter = Audience | 'all';
 
 const FILTERS: readonly (readonly [Filter, string])[] = [
@@ -27,6 +36,7 @@ export function FaqPage() {
     <EditablePage editor={(close) => <FaqEditor onClose={close} />}>
       <PageHeader title={faq.title} description={faq.intro} />
 
+      {/* Botones de filtro por público. */}
       <div role="group" aria-label="Filtrar preguntas" className="mb-5 flex gap-2">
         {FILTERS.map(([value, label]) => (
           <button
@@ -48,6 +58,7 @@ export function FaqPage() {
         ))}
       </div>
 
+      {/* Lista de preguntas: cada una se despliega para ver la respuesta. */}
       <div className="space-y-3">
         {items.map((item) => (
           <details key={item.id} className="group rounded-xl border bg-card">

@@ -1,3 +1,12 @@
+/**
+ * Página genérica de "artículo": un título, una introducción y varias
+ * secciones con pasos numerados, viñetas o listas de verificación.
+ *
+ * La usan varias pantallas del menú (primer ingreso a SAIA, trámites, cursos de
+ * verano, normas y las pantallas para docentes); cada una muestra una parte
+ * distinta del contenido (ver `ARTICLE_PAGES` en `@/lib/navigation.ts`).
+ * Su formulario de edición está en `./article-editor.tsx`.
+ */
 import { Notice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { useContent } from '@/features/content/content-context';
@@ -8,6 +17,8 @@ import type { ArticleKey, ArticleSection } from '@shared/content/schema';
 
 import { ArticleEditor } from './article-editor';
 
+// Lista de verificación: las casillas marcadas se recuerdan en este
+// computador y se muestra una barra de avance.
 function Checklist({ storageKey, items }: { storageKey: string; items: readonly string[] }) {
   const { values: checked, toggle } = usePersistedSet(storageKey);
   const done = items.filter((item) => checked.has(item)).length;
@@ -45,6 +56,7 @@ function Checklist({ storageKey, items }: { storageKey: string; items: readonly 
   );
 }
 
+// Muestra los elementos de una sección según su estilo (numerado, viñetas o lista).
 function SectionItems({ section, storageKey }: { section: ArticleSection; storageKey: string }) {
   if (section.items.length === 0) return null;
   if (section.style === 'checklist') {
@@ -73,7 +85,7 @@ function SectionItems({ section, storageKey }: { section: ArticleSection; storag
   );
 }
 
-/** Generic page made of sections (steps, bullets or checklists), editable by the school. */
+/** Página genérica hecha de secciones (pasos, viñetas o listas), editable por la escuela. */
 export function ArticlePage({ articleKey }: { articleKey: ArticleKey }) {
   const article = useContent().content[articleKey];
 
