@@ -41,15 +41,25 @@ maestra nueva y distribuir un instalador nuevo.
 
 ### Crear la llave maestra (una sola vez, antes de distribuir)
 
+Hazlo **en tu propia computadora**, no en un servidor ni en un entorno
+compartido, para que la llave privada y su contraseña no salgan de ella:
+
 ```bash
-pnpm content:master-key ruta/fuera/del/repo/llave-maestra-escuela-47.pem
+pnpm content:master-key E:/llave-maestra-escuela-47.pem
 ```
 
-El comando pide una contraseña, guarda la llave maestra cifrada en la ruta
-indicada y escribe su parte pública en `src/main/content/public-key.ts`. Haz
-commit de ese archivo y genera el instalador. Después, en la app, crea la
-primera llave de edición con la maestra. **Nunca subas llaves privadas al
-repositorio** (`*.pem` y `*.psmkey` están en `.gitignore`).
+1. El comando pide la contraseña dos veces, sin mostrarla en pantalla. Usa 12
+   caracteres o más. Se niega a guardar la llave dentro del repositorio.
+2. Guarda la llave maestra cifrada en la ruta indicada (por ejemplo, un
+   pendrive) y escribe su parte pública en `src/main/content/public-key.ts`.
+3. Haz commit **solo** de `public-key.ts` (la parte pública no es secreta) y
+   genera el instalador.
+4. En la app, ve a _Contenido del manual → «¿Se perdió o robaron la llave de
+   edición?»_ y crea la primera llave de edición con la maestra. Entrégala a
+   la jefatura con su propia contraseña.
+5. Guarda la llave maestra en dos lugares seguros (por ejemplo, la Dirección)
+   y su contraseña por separado. **Nunca subas llaves privadas al
+   repositorio** (`*.pem` y `*.psmkey` están en `.gitignore`).
 
 > La llave maestra que trae el repositorio hoy es **de prueba**. Genera la
 > definitiva antes de distribuir la app.
