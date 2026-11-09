@@ -1,6 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json
 appId: com.desktopguide.app
-productName: Desktop Guide
+productName: Manual de Inducción IUPSM
+# Nombre del archivo .exe del programa, sin tildes ni espacios para evitar
+# problemas con rutas en Windows.
+executableName: ManualInduccionIUPSM
 copyright: Copyright © ${author}
 
 directories:
@@ -33,6 +36,11 @@ nsis:
   # Nombre visible del acceso directo y en "Agregar o quitar programas".
   shortcutName: Manual de Inducción IUPSM
   uninstallDisplayName: Manual de Inducción IUPSM
-  artifactName: ${name}-${version}-setup-${arch}.${ext}
+  # El instalador y el desinstalador también llevan el sello del PSM.
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  # Nombre del archivo del instalador que se entrega (sin tildes).
+  artifactName: Instalar-Manual-Induccion-IUPSM-${version}.${ext}
 
 publish: null

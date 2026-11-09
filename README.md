@@ -88,18 +88,18 @@ La primera ejecución de `pnpm dev` descarga el binario de Electron.
 
 ## Scripts
 
-| Comando                          | Descripción                                          |
-| -------------------------------- | ---------------------------------------------------- |
-| `pnpm dev`                       | Modo desarrollo con HMR                              |
-| `pnpm build`                     | Build de producción en `out/`                        |
-| `pnpm preview`                   | Ejecuta el build de producción                       |
-| `pnpm typecheck`                 | Verificación de tipos                                |
-| `pnpm lint`                      | ESLint                                               |
-| `pnpm format`                    | Formatea con Prettier                                |
-| `pnpm test`                      | Tests con Vitest                                     |
-| `pnpm check`                     | typecheck + lint + format + tests (igual que CI)     |
-| `pnpm package:win`               | Genera el instalador NSIS en `release/<version>/`    |
-| `pnpm content:master-key <ruta>` | Genera la llave maestra de la escuela (una sola vez) |
+| Comando                          | Descripción                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| `pnpm dev`                       | Modo desarrollo con HMR                                                        |
+| `pnpm build`                     | Build de producción en `out/`                                                  |
+| `pnpm preview`                   | Ejecuta el build de producción                                                 |
+| `pnpm typecheck`                 | Verificación de tipos                                                          |
+| `pnpm lint`                      | ESLint                                                                         |
+| `pnpm format`                    | Formatea con Prettier                                                          |
+| `pnpm test`                      | Tests con Vitest                                                               |
+| `pnpm check`                     | typecheck + lint + format + tests (igual que CI)                               |
+| `pnpm package:win`               | Genera `Instalar-Manual-Induccion-IUPSM-<version>.exe` en `release/<version>/` |
+| `pnpm content:master-key <ruta>` | Genera la llave maestra de la escuela (una sola vez)                           |
 
 ## Stack
 

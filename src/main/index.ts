@@ -12,6 +12,8 @@
  * 3. Registra los canales de comunicación con la interfaz (`./ipc/register.ts`).
  * 4. Abre la ventana principal (`./window.ts`).
  */
+import { join } from 'node:path';
+
 import { app, BrowserWindow } from 'electron';
 
 import { registerIpcHandlers } from './ipc/register';
@@ -20,6 +22,13 @@ import { createMainWindow } from './window';
 
 // Identificador de la app en Windows (agrupa las ventanas en la barra de tareas).
 const APP_USER_MODEL_ID = 'com.desktopguide.app';
+
+// Carpeta donde la app guarda el contenido publicado y el registro de llaves.
+// La app se llamaba "Desktop Guide" y Electron nombra esta carpeta según el
+// nombre de la app; se fija el nombre original para que, al cambiar el nombre
+// visible, las computadoras que ya la tienen instalada no pierdan sus datos.
+// Debe definirse antes de cualquier otra cosa (incluido el bloqueo de abajo).
+app.setPath('userData', join(app.getPath('appData'), 'Desktop Guide'));
 
 // Solo puede haber una copia de la app abierta a la vez. Si ya hay una, esta
 // segunda copia se cierra.
