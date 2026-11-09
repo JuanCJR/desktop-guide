@@ -45,10 +45,10 @@ function Feedback({ result }: { result: ActionResult | null }) {
     <p
       role="status"
       className={cn(
-        'rounded-lg border-l-4 px-4 py-3 text-sm font-medium',
+        'rounded-lg border px-4 py-3 text-sm font-medium',
         result.ok
-          ? 'border-success bg-success-soft text-success'
-          : 'border-warning bg-warning-soft text-warning-foreground',
+          ? 'border-success/30 bg-success-soft text-success'
+          : 'border-warning/30 bg-warning-soft text-warning-foreground',
       )}
     >
       {result.message}
