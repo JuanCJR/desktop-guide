@@ -1,8 +1,20 @@
 <!doctype html>
+<!--
+  Página base de la interfaz de la aplicación.
+
+  Electron abre este archivo en la ventana principal (ver src/main/window.ts).
+  Solo contiene un contenedor vacío (#root) donde React dibuja toda la
+  interfaz, y carga el código que arranca la interfaz (src/main.tsx).
+-->
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Política de seguridad del contenido (CSP): solo permite cargar código,
+      estilos, imágenes y fuentes de la propia app, nunca de internet. No se
+      debe relajar sin una buena razón (ver CLAUDE.md).
+    -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"

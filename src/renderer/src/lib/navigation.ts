@@ -1,3 +1,14 @@
+/**
+ * Menú de navegación de la app: qué pantallas hay, en qué grupo aparecen
+ * (Estudiantes, Docentes, General), con qué nombre e ícono, y qué palabras
+ * permiten encontrarlas en el buscador.
+ *
+ * Lo usan el menú lateral (`features/shell/app-sidebar.tsx`), el buscador de
+ * la barra superior (`features/shell/top-bar.tsx`) y la página de artículos
+ * (`features/article/article-page.tsx`). Los íconos vienen de lucide-react.
+ * Para agregar una pantalla al menú, se agrega aquí y en
+ * `src/shared/content/pages.ts`.
+ */
 import {
   Building2,
   CalendarDays,
@@ -23,7 +34,7 @@ export interface NavItem {
   id: PageId;
   label: string;
   icon: LucideIcon;
-  /** Extra words that should find this page in the search box. */
+  /** Palabras extra con las que el buscador debe encontrar esta pantalla. */
   keywords: readonly string[];
 }
 
@@ -32,6 +43,7 @@ export interface NavSection {
   items: readonly NavItem[];
 }
 
+// Grupos y pantallas del menú lateral, en el orden en que se muestran.
 export const NAV_SECTIONS: readonly NavSection[] = [
   {
     title: null,
@@ -138,15 +150,17 @@ export const NAV_SECTIONS: readonly NavSection[] = [
   },
 ];
 
+// Todas las pantallas del menú en una sola lista (sin grupos).
 export const NAV_ITEMS: readonly NavItem[] = NAV_SECTIONS.flatMap((section) => section.items);
 
+// Busca los datos de menú (nombre, ícono) de una pantalla.
 export function findNavItem(id: PageId): NavItem {
   const item = NAV_ITEMS.find((candidate) => candidate.id === id);
   if (!item) throw new Error(`Unknown page: ${id}`);
   return item;
 }
 
-/** Page and audience of each generic article in the content. */
+/** Pantalla y público (estudiantes o docentes) de cada artículo genérico del contenido. */
 export const ARTICLE_PAGES = {
   saiaFirstLogin: { page: 'saia-first-login', audience: 'student' },
   procedures: { page: 'procedures', audience: 'student' },

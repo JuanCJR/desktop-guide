@@ -1,4 +1,11 @@
-/** Lowercases and strips accents so "inscripción" matches "inscripcion". */
+/**
+ * Lógica del buscador de la barra superior (`features/shell/top-bar.tsx`).
+ *
+ * Compara lo que escribe la persona con el nombre y las palabras clave de cada
+ * pantalla (definidas en `./navigation.ts`), sin importar mayúsculas ni tildes.
+ */
+
+/** Pasa a minúsculas y quita las tildes, para que "inscripción" coincida con "inscripcion". */
 export function normalizeText(value: string): string {
   return value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 }
@@ -10,8 +17,8 @@ export interface SearchableTopic<T> {
 }
 
 /**
- * Returns the topics whose title or keywords contain every word of the
- * query, ranking title matches first.
+ * Devuelve los temas cuyo título o palabras clave contienen todas las palabras
+ * buscadas, mostrando primero los que coinciden en el título.
  */
 export function searchTopics<T>(
   topics: readonly SearchableTopic<T>[],

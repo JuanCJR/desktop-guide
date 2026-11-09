@@ -1,3 +1,11 @@
+/**
+ * Campos reutilizables de los formularios de edición: texto, lista de textos,
+ * botones para subir/bajar/eliminar elementos, botón "Agregar" y tarjeta que
+ * agrupa los campos de un elemento (un paso, una materia…).
+ *
+ * Los usan los archivos `*-editor.tsx` de cada pantalla. Los componentes
+ * básicos (Input, Button…) vienen de `@/components/ui/` (shadcn/ui).
+ */
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { type ReactNode, useId } from 'react';
 
@@ -7,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { moveItem, removeAt, replaceAt } from '@/lib/list';
 
+/** Campo de texto con su etiqueta; de una línea o de varias (`multiline`). */
 export function TextField({
   label,
   value,
@@ -46,7 +55,7 @@ export function TextField({
   );
 }
 
-/** Up / down / delete buttons for an item of an editable list. */
+/** Botones subir / bajar / eliminar de un elemento de una lista editable. */
 export function ItemControls({
   index,
   count,
@@ -101,7 +110,7 @@ export function ItemControls({
   );
 }
 
-/** Editable list of short texts (requirements, steps, …). */
+/** Lista editable de textos cortos (requisitos, pasos, …). */
 export function StringListField({
   label,
   values,
@@ -148,6 +157,7 @@ export function StringListField({
   );
 }
 
+/** Botón "Agregar …" para sumar un elemento nuevo a una lista. */
 export function AddButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
   return (
     <Button type="button" variant="outline" size="sm" onClick={onClick}>
@@ -157,7 +167,7 @@ export function AddButton({ onClick, children }: { onClick: () => void; children
   );
 }
 
-/** Groups the fields of one item (a step, a subject…) inside a card. */
+/** Agrupa los campos de un elemento (un paso, una materia…) dentro de una tarjeta. */
 export function ItemCard({
   title,
   controls,

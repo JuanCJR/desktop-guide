@@ -1,9 +1,18 @@
-/** Minimal subset of `Storage`, so the logic can be tested without a DOM. */
+/**
+ * Lógica para recordar en este computador un conjunto de textos (por ejemplo,
+ * las tareas de inscripción que el estudiante ya marcó como hechas), aunque se
+ * cierre la app. Se guarda en el almacenamiento local del navegador interno.
+ *
+ * Lo usa el hook `src/renderer/src/hooks/use-persisted-set.ts`. Está separado
+ * para poder probarlo con tests sin una ventana real.
+ */
+
+/** Parte mínima de `Storage`, para poder probar la lógica sin una ventana real. */
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 /**
- * Reads a set of strings saved as a JSON array. Returns an empty set when
- * nothing is stored, the value is malformed or storage is unavailable.
+ * Lee un conjunto de textos guardado como lista JSON. Devuelve un conjunto
+ * vacío si no hay nada guardado, si el valor está dañado o si no hay almacenamiento.
  */
 export function readStringSet(storage: KeyValueStorage | null, key: string): Set<string> {
   try {
@@ -17,7 +26,7 @@ export function readStringSet(storage: KeyValueStorage | null, key: string): Set
   }
 }
 
-/** Saves a set of strings; failures (private mode, quota) are ignored. */
+/** Guarda un conjunto de textos; si falla (sin espacio, modo privado) se ignora. */
 export function writeStringSet(
   storage: KeyValueStorage | null,
   key: string,
@@ -26,11 +35,11 @@ export function writeStringSet(
   try {
     storage?.setItem(key, JSON.stringify([...values]));
   } catch {
-    // Persistence is a convenience; the UI keeps working without it.
+    // Recordar es solo una comodidad; la interfaz sigue funcionando sin ello.
   }
 }
 
-/** Returns a copy of `values` with `value` added or removed. */
+/** Devuelve una copia de `values` con `value` agregado o quitado (como marcar/desmarcar). */
 export function toggleInSet(values: ReadonlySet<string>, value: string): Set<string> {
   const next = new Set(values);
   if (next.has(value)) next.delete(value);

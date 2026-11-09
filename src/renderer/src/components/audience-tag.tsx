@@ -1,3 +1,8 @@
+/**
+ * Etiqueta pequeña que indica a quién va dirigido un tema: "Estudiantes" o
+ * "Docentes". Se usa en varias pantallas (inicio, artículos, preguntas
+ * frecuentes).
+ */
 import { BookOpen, GraduationCap } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -5,7 +10,7 @@ import type { Audience } from '@shared/content/schema';
 
 const LABELS: Record<Audience, string> = { student: 'Estudiantes', teacher: 'Docentes' };
 
-/** Says who a topic is for: students (light) or teachers (solid navy). */
+/** Indica para quién es un tema: estudiantes (fondo claro) o docentes (azul marino sólido). */
 export function AudienceTag({ audience, className }: { audience: Audience; className?: string }) {
   const Icon = audience === 'student' ? GraduationCap : BookOpen;
   return (
