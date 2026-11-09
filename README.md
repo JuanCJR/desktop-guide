@@ -45,8 +45,12 @@ Hazlo **en tu propia computadora**, no en un servidor ni en un entorno
 compartido, para que la llave privada y su contraseña no salgan de ella:
 
 ```bash
-pnpm content:master-key E:/llave-maestra-escuela-47.pem
+pnpm content:master-key ~/llaves-iupsm/llave-maestra-escuela-47.pem
 ```
+
+En PowerShell puedes usar rutas como `E:/llave.pem`. En una terminal de WSL
+(bash), la unidad `E:` de Windows está en `/mnt/e/`. La carpeta de destino debe
+existir antes de ejecutar el comando.
 
 1. El comando pide la contraseña dos veces, sin mostrarla en pantalla. Usa 12
    caracteres o más. Se niega a guardar la llave dentro del repositorio.
@@ -61,8 +65,11 @@ pnpm content:master-key E:/llave-maestra-escuela-47.pem
    y su contraseña por separado. **Nunca subas llaves privadas al
    repositorio** (`*.pem` y `*.psmkey` están en `.gitignore`).
 
-> La llave maestra que trae el repositorio hoy es **de prueba**. Genera la
-> definitiva antes de distribuir la app.
+> **La llave maestra definitiva ya está en el repositorio** (noviembre de
+> 2026). No vuelvas a ejecutar `content:master-key` salvo que se pierda la
+> llave maestra: generar otra anula todas las llaves de edición y el contenido
+> publicado con la anterior, y obliga a reinstalar la app en todas las
+> computadoras.
 
 ## Requisitos
 
