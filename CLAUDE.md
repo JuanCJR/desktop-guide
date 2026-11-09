@@ -45,7 +45,7 @@ pnpm test             # Vitest (una pasada)
 pnpm test:watch       # Vitest en modo watch
 pnpm check            # typecheck + lint + format:check + test (lo mismo que CI)
 pnpm package:win      # build + instalador NSIS en release/<version>/
-pnpm content:keygen <ruta.pem>  # genera la llave de la escuela (ver abajo)
+pnpm content:master-key <ruta.pem>  # genera la llave maestra (ver abajo)
 ```
 
 ## Arquitectura
@@ -55,10 +55,11 @@ src/
 ├── main/                    # Proceso principal (Node + Electron)
 │   ├── index.ts             # Ciclo de vida de la app, single-instance, registro de IPC
 │   ├── content/             # Contenido firmado: firma/verificación, servicio, archivo
-│   │   ├── content-service.ts # Qué contenido se muestra; edición solo con la llave
-│   │   ├── signing.ts         # Ed25519: firmar, verificar y abrir paquetes .psm
+│   │   ├── content-service.ts # Qué contenido se muestra; edición, llaves y reemplazo
+│   │   ├── signing.ts         # Ed25519: certificados, llaves de edición y paquetes .psm
 │   │   ├── file-storage.ts    # Paquete activo en userData (escritura atómica)
-│   │   └── public-key.ts      # Llave pública de la escuela (generada con content:keygen)
+│   │   ├── test-keys.ts       # Helpers de tests (llaves de prueba)
+│   │   └── public-key.ts      # Llave pública MAESTRA (generada con content:master-key)
 │   ├── window.ts            # Creación de BrowserWindow (webPreferences seguras)
 │   ├── security.ts          # Endurecimiento de WebContents, URLs confiables
 │   └── ipc/
@@ -72,7 +73,7 @@ src/
 │   ├── content/
 │   │   ├── schema.ts        # Esquema Zod de TODO el contenido editable del manual
 │   │   ├── default-content.ts # Contenido original (el que trae el instalador)
-│   │   ├── package.ts       # Formato del paquete firmado .psm
+│   │   ├── package.ts       # Formatos: paquete .psm, certificado, llave .psmkey
 │   │   ├── pages.ts         # Ids de las pantallas
 │   │   └── prerequisites.ts # Lógica del simulador de prelaciones
 │   └── ipc/
@@ -149,13 +150,22 @@ Reglas:
 - Cambiar el esquema de forma incompatible invalida los paquetes ya
   publicados (la app vuelve al contenido original). Si hace falta, sube
   `schemaVersion` y escribe una migración.
-- **Seguridad del contenido**: la app solo muestra contenido original o
-  paquetes `.psm` con firma Ed25519 válida, verificada en main con la llave
-  pública de `src/main/content/public-key.ts`. La edición se desbloquea en
-  memoria (no se guarda) cargando la llave privada cifrada con su
-  contraseña. **La llave privada nunca va al repositorio** (`*.pem` está
-  ignorado). La llave pública actual es **de prueba**: genera la definitiva
-  con `pnpm content:keygen` antes de distribuir.
+- **Seguridad del contenido** (cadena de confianza):
+  1. La **llave maestra** se genera una vez con `pnpm content:master-key`.
+     Su parte pública está en `src/main/content/public-key.ts`; la privada
+     se guarda fuera de línea y solo sirve para crear llaves de edición.
+  2. Las **llaves de edición** (`.psmkey`) se crean dentro de la app con la
+     maestra. Contienen la llave privada cifrada y un **certificado** firmado
+     por la maestra.
+  3. Los paquetes `.psm` se firman con la llave de edición y llevan su
+     certificado. Main verifica certificado + firma + esquema.
+  4. **Reemplazo**: cada computadora recuerda (`editor-key-trust.json` en
+     userData) la fecha del certificado más nuevo que vio, y rechaza
+     desbloquear o importar con certificados más viejos. El contenido ya
+     guardado se sigue mostrando aunque su llave haya sido reemplazada.
+  5. La edición se desbloquea solo en memoria. **Ninguna llave privada va al
+     repositorio** (`*.pem` y `*.psmkey` están ignorados). La maestra actual
+     es **de prueba**: genera la definitiva antes de distribuir.
 - Las preferencias locales (casillas marcadas) se guardan en `localStorage`
   con `usePersistedSet`; nunca guardes contenido ahí.
 

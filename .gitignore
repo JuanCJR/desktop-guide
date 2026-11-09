@@ -29,3 +29,4 @@ Thumbs.db
 # Content signing keys (never commit private keys)
 *.pem
 *.key
+*.psmkey

@@ -28,4 +28,28 @@ describe('IPC contract', () => {
       },
     );
   });
+
+  describe('editor:create-key', () => {
+    const { request } = ipcContract['editor:create-key'];
+
+    it('accepts a master passphrase and a new passphrase of 8+ characters', () => {
+      expect(request.safeParse({ masterPassphrase: 'x', newPassphrase: '12345678' }).success).toBe(
+        true,
+      );
+    });
+
+    it.each([
+      {},
+      { masterPassphrase: '', newPassphrase: '12345678' },
+      { masterPassphrase: 'x', newPassphrase: 'short' },
+    ])('rejects %o', (payload) => {
+      expect(request.safeParse(payload).success).toBe(false);
+    });
+  });
+
+  it('editor:unlock requires a passphrase', () => {
+    const { request } = ipcContract['editor:unlock'];
+    expect(request.safeParse({ passphrase: 'abc' }).success).toBe(true);
+    expect(request.safeParse({ passphrase: '' }).success).toBe(false);
+  });
 });

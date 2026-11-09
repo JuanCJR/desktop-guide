@@ -172,8 +172,10 @@ export const contentStateSchema = z.object({
   warning: z.string().nullable(),
   /** Whether this installation can verify signed packages at all. */
   signingConfigured: z.boolean(),
-  /** Whether the school key is loaded in this session, enabling edits. */
+  /** Whether an editor key is loaded in this session, enabling edits. */
   editorUnlocked: z.boolean(),
+  /** Issue date of the newest editor key seen on this computer; older keys are refused. */
+  activeKeyIssuedAt: z.iso.datetime().nullable(),
 });
 export type ContentState = z.infer<typeof contentStateSchema>;
 

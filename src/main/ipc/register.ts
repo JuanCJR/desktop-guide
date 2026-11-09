@@ -8,7 +8,7 @@ import type { IpcChannel } from '@shared/ipc/channels';
 
 import { ContentService } from '../content/content-service';
 import { createFileStorage } from '../content/file-storage';
-import { CONTENT_PUBLIC_KEY_PEM } from '../content/public-key';
+import { MASTER_PUBLIC_KEY_PEM } from '../content/public-key';
 import { parsePublicKey } from '../content/signing';
 import { isTrustedUrl } from '../security';
 import { createIpcHandler, type IpcHandler } from './create-handler';
@@ -18,9 +18,10 @@ import { createContentHandlers } from './handlers/content';
 /** Every channel in the contract must have exactly one handler here. */
 function createHandlers(): { [C in IpcChannel]: IpcHandler<C> } {
   const contentService = new ContentService({
-    storage: createFileStorage(join(app.getPath('userData'), 'manual-content.psm')),
+    packageStorage: createFileStorage(join(app.getPath('userData'), 'manual-content.psm')),
+    trustStorage: createFileStorage(join(app.getPath('userData'), 'editor-key-trust.json')),
     bundled: DEFAULT_CONTENT,
-    publicKey: parsePublicKey(CONTENT_PUBLIC_KEY_PEM),
+    masterPublicKey: parsePublicKey(MASTER_PUBLIC_KEY_PEM),
   });
   return {
     'app:get-info': getAppInfo,

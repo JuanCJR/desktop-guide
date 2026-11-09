@@ -76,6 +76,20 @@ export const ipcContract = {
     request: z.undefined(),
     response: contentStateSchema,
   },
+  'editor:create-key': {
+    request: z.object({
+      masterPassphrase: z.string().min(1).max(200),
+      newPassphrase: z
+        .string()
+        .min(8, 'La contraseña nueva debe tener al menos 8 caracteres.')
+        .max(200),
+    }),
+    response: z.discriminatedUnion('status', [
+      z.object({ status: z.literal('created'), state: contentStateSchema }),
+      cancelledResult,
+      invalidResult,
+    ]),
+  },
 } as const satisfies Record<IpcChannel, { request: z.ZodType; response: z.ZodType }>;
 
 export type IpcContract = typeof ipcContract;
