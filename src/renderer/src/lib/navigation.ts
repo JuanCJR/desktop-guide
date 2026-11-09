@@ -12,9 +12,12 @@ import {
   Monitor,
   Settings,
   ShieldCheck,
+  Sun,
+  UserCheck,
 } from 'lucide-react';
 
 import type { PageId } from '@shared/content/pages';
+import type { ArticleKey, Audience } from '@shared/content/schema';
 
 export interface NavItem {
   id: PageId;
@@ -22,8 +25,6 @@ export interface NavItem {
   icon: LucideIcon;
   /** Extra words that should find this page in the search box. */
   keywords: readonly string[];
-  /** Shown while the page is still being written. */
-  comingSoon?: string;
 }
 
 export interface NavSection {
@@ -62,21 +63,24 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         label: 'Primer ingreso a SAIA',
         icon: Monitor,
         keywords: ['saia', 'plataforma', 'contraseña', 'usuario', 'virtual'],
-        comingSoon: 'Los 4 pasos para entrar por primera vez al campus virtual SAIA, con capturas.',
       },
       {
         id: 'procedures',
         label: 'Trámites y justificativos',
         icon: FileText,
         keywords: ['justificativo', 'medico', 'constancia', 'carnet', 'reposicion', 'falta'],
-        comingSoon: 'Justificativos médicos (48–72 h), constancias y reposición de carnet.',
+      },
+      {
+        id: 'summer',
+        label: 'Cursos de verano',
+        icon: Sun,
+        keywords: ['verano', 'intensivo', 'nivelar', 'reprobada', 'adelantar'],
       },
       {
         id: 'rules',
         label: 'Normas y carnet',
         icon: ShieldCheck,
         keywords: ['vestimenta', 'ropa', 'carnet', 'prohibido', 'calzado', 'gorra'],
-        comingSoon: 'Código de vestimenta y uso obligatorio del carnet.',
       },
     ],
   },
@@ -88,21 +92,24 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         label: 'Ingreso y expediente',
         icon: ClipboardList,
         keywords: ['expediente', 'recaudos', 'microclase', 'entrevista', 'curriculum'],
-        comingSoon: 'Postulación, recaudos del expediente y la microclase de 15 minutos.',
       },
       {
         id: 'teacher-calendar',
         label: 'Calendario del semestre',
         icon: CalendarDays,
         keywords: ['cortes', 'semanas', 'fechas', 'validacion', 'porcentajes'],
-        comingSoon: 'Las 18 semanas con los cortes, la PGA y las fechas de validación de notas.',
       },
       {
         id: 'teacher-saia',
         label: 'PGA y notas en SAIA',
         icon: Monitor,
-        keywords: ['pga', 'planificacion', 'aula dace', 'notas', 'subir', 'solvencia'],
-        comingSoon: 'Paso a paso con capturas para cargar la PGA y las notas en el Aula DACE.',
+        keywords: ['pga', 'planificacion', 'aula dace', 'notas', 'subir', 'validador'],
+      },
+      {
+        id: 'teacher-procedures',
+        label: 'Permisos y asistencia',
+        icon: UserCheck,
+        keywords: ['permiso', 'recuperacion', 'asistencia', 'lista', 'solvencia', 'sello'],
       },
     ],
   },
@@ -114,14 +121,12 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         label: 'Preguntas frecuentes',
         icon: CircleHelp,
         keywords: ['dudas', 'preguntas', 'faq'],
-        comingSoon: 'Las preguntas frecuentes de estudiantes y docentes.',
       },
       {
         id: 'directory',
         label: 'Directorio',
         icon: Building2,
         keywords: ['oficinas', 'ubicacion', 'donde queda', 'jefatura', 'caja', 'biblioteca'],
-        comingSoon: 'Dependencias del IUPSM, dónde quedan y qué trámites atienden.',
       },
       {
         id: 'content-admin',
@@ -140,3 +145,14 @@ export function findNavItem(id: PageId): NavItem {
   if (!item) throw new Error(`Unknown page: ${id}`);
   return item;
 }
+
+/** Page and audience of each generic article in the content. */
+export const ARTICLE_PAGES = {
+  saiaFirstLogin: { page: 'saia-first-login', audience: 'student' },
+  procedures: { page: 'procedures', audience: 'student' },
+  summer: { page: 'summer', audience: 'student' },
+  rules: { page: 'rules', audience: 'student' },
+  teacherOnboarding: { page: 'teacher-onboarding', audience: 'teacher' },
+  teacherSaia: { page: 'teacher-saia', audience: 'teacher' },
+  teacherProcedures: { page: 'teacher-procedures', audience: 'teacher' },
+} as const satisfies Record<ArticleKey, { page: PageId; audience: Audience }>;

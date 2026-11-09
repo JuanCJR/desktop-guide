@@ -4,10 +4,10 @@ import { useMemo, useState } from 'react';
 import { AudienceTag } from '@/components/audience-tag';
 import { Button } from '@/components/ui/button';
 import { useContent } from '@/features/content/content-context';
-import { NAV_ITEMS } from '@/lib/navigation';
+import { ARTICLE_PAGES, NAV_ITEMS } from '@/lib/navigation';
 import { type SearchableTopic, searchTopics } from '@/lib/search';
 import type { PageId } from '@shared/content/pages';
-import type { Audience } from '@shared/content/schema';
+import { ARTICLE_KEYS, type Audience } from '@shared/content/schema';
 
 interface SearchResult {
   key: string;
@@ -31,6 +31,30 @@ export function TopBar({ onNavigate }: { onNavigate: (page: PageId) => void }) {
         title: link.title,
         keywords: [link.description],
         item: { key: link.id, title: link.title, page: link.target, audience: link.audience },
+      })),
+      ...ARTICLE_KEYS.flatMap((articleKey) => {
+        const { page, audience } = ARTICLE_PAGES[articleKey];
+        const article = content[articleKey];
+        return article.sections.map((section) => ({
+          title: section.title,
+          keywords: [article.title, section.body, ...section.items],
+          item: {
+            key: `${articleKey}:${section.id}`,
+            title: `${article.title} · ${section.title}`,
+            page,
+            audience,
+          },
+        }));
+      }),
+      ...content.faq.items.map((item) => ({
+        title: item.question,
+        keywords: [item.answer],
+        item: {
+          key: `faq:${item.id}`,
+          title: item.question,
+          page: 'faq' as const,
+          audience: item.audience,
+        },
       })),
     ],
     [content],

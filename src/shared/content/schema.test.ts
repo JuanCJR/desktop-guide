@@ -62,4 +62,74 @@ describe('manualContentSchema', () => {
     if (link) link.target = 'nowhere';
     expect(manualContentSchema.safeParse(content).success).toBe(false);
   });
+
+  describe('teacher calendar', () => {
+    it('requires the cut percentages to add up to 100', () => {
+      const content = clone();
+      const [cut] = content.teacherCalendar.cuts;
+      if (cut) cut.percent = 50;
+      const result = manualContentSchema.safeParse(content);
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toContain('100%');
+    });
+
+    it('rejects cuts or milestones outside the semester', () => {
+      const content = clone();
+      const [cut] = content.teacherCalendar.cuts;
+      if (cut) cut.toWeek = 25;
+      expect(manualContentSchema.safeParse(content).success).toBe(false);
+
+      const other = clone();
+      other.teacherCalendar.milestones.push({
+        id: 'late',
+        week: 19,
+        title: 'Tarde',
+        description: 'Fuera del semestre',
+      });
+      expect(manualContentSchema.safeParse(other).success).toBe(false);
+    });
+
+    it('rejects a cut whose weeks are reversed', () => {
+      const content = clone();
+      const [cut] = content.teacherCalendar.cuts;
+      if (cut) cut.fromWeek = 6;
+      if (cut) cut.toWeek = 1;
+      expect(manualContentSchema.safeParse(content).success).toBe(false);
+    });
+  });
+
+  describe('articles', () => {
+    it('require at least one section', () => {
+      const content = clone();
+      content.rules.sections = [];
+      expect(manualContentSchema.safeParse(content).success).toBe(false);
+    });
+
+    it('reject repeated section ids', () => {
+      const content = clone();
+      const [first] = content.summer.sections;
+      if (first) content.summer.sections.push({ ...first });
+      expect(manualContentSchema.safeParse(content).success).toBe(false);
+    });
+
+    it('reject an unknown section style', () => {
+      const content = clone() as unknown as { rules: { sections: { style: string }[] } };
+      const [first] = content.rules.sections;
+      if (first) first.style = 'table';
+      expect(manualContentSchema.safeParse(content).success).toBe(false);
+    });
+  });
+
+  it('rejects repeated FAQ ids', () => {
+    const content = clone();
+    const [first] = content.faq.items;
+    if (first) content.faq.items.push({ ...first });
+    expect(manualContentSchema.safeParse(content).success).toBe(false);
+  });
+
+  it('bundles FAQ for both audiences and the five offices', () => {
+    const audiences = new Set(DEFAULT_CONTENT.faq.items.map((item) => item.audience));
+    expect(audiences).toEqual(new Set(['student', 'teacher']));
+    expect(DEFAULT_CONTENT.directory.offices).toHaveLength(5);
+  });
 });

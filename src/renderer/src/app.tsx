@@ -1,15 +1,17 @@
 import { useRef, useState } from 'react';
 
 import { ContentAdminPage } from '@/features/admin/content-admin-page';
+import { ArticlePage } from '@/features/article/article-page';
+import { CalendarPage } from '@/features/calendar/calendar-page';
 import { ContentProvider } from '@/features/content/content-provider';
+import { DirectoryPage } from '@/features/directory/directory-page';
 import { EnrollmentPage } from '@/features/enrollment/enrollment-page';
+import { FaqPage } from '@/features/faq/faq-page';
 import { GradesPage } from '@/features/grades/grades-page';
 import { HomePage } from '@/features/home/home-page';
-import { ComingSoonPage } from '@/features/placeholder/coming-soon-page';
 import { PrerequisitesPage } from '@/features/prerequisites/prerequisites-page';
 import { AppSidebar } from '@/features/shell/app-sidebar';
 import { TopBar } from '@/features/shell/top-bar';
-import { findNavItem } from '@/lib/navigation';
 import type { PageId } from '@shared/content/pages';
 
 function CurrentPage({ page, onNavigate }: { page: PageId; onNavigate: (page: PageId) => void }) {
@@ -22,10 +24,28 @@ function CurrentPage({ page, onNavigate }: { page: PageId; onNavigate: (page: Pa
       return <PrerequisitesPage />;
     case 'grades':
       return <GradesPage />;
+    case 'saia-first-login':
+      return <ArticlePage articleKey="saiaFirstLogin" />;
+    case 'procedures':
+      return <ArticlePage articleKey="procedures" />;
+    case 'summer':
+      return <ArticlePage articleKey="summer" />;
+    case 'rules':
+      return <ArticlePage articleKey="rules" />;
+    case 'teacher-onboarding':
+      return <ArticlePage articleKey="teacherOnboarding" />;
+    case 'teacher-calendar':
+      return <CalendarPage />;
+    case 'teacher-saia':
+      return <ArticlePage articleKey="teacherSaia" />;
+    case 'teacher-procedures':
+      return <ArticlePage articleKey="teacherProcedures" />;
+    case 'faq':
+      return <FaqPage />;
+    case 'directory':
+      return <DirectoryPage />;
     case 'content-admin':
       return <ContentAdminPage />;
-    default:
-      return <ComingSoonPage item={findNavItem(page)} />;
   }
 }
 
