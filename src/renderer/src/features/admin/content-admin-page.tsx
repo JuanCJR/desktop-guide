@@ -16,11 +16,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type ActionResult, useContent } from '@/features/content/content-context';
 
+import { cn } from '@/lib/utils';
+
+import { NewEditorKeyForm } from './new-editor-key-form';
+
 const dateFormatter = new Intl.DateTimeFormat('es-VE', { dateStyle: 'long', timeStyle: 'short' });
 
-function Panel({ title, children }: { title: string; children: ReactNode }) {
+function Panel({
+  title,
+  className,
+  children,
+}: {
+  title: string;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <section className="rounded-xl border bg-card p-6">
+    <section className={cn('rounded-xl border bg-card p-6', className)}>
       <h2 className="text-lg font-semibold text-brand">{title}</h2>
       <div className="mt-3 space-y-4 text-sm text-muted-foreground">{children}</div>
     </section>
@@ -32,7 +44,12 @@ function Feedback({ result }: { result: ActionResult | null }) {
   return (
     <p
       role="status"
-      className={result.ok ? 'font-medium text-success' : 'font-medium text-warning'}
+      className={cn(
+        'rounded-lg border px-4 py-3 text-sm font-medium',
+        result.ok
+          ? 'border-success/30 bg-success-soft text-success'
+          : 'border-warning/30 bg-warning-soft text-warning-foreground',
+      )}
     >
       {result.message}
     </p>
@@ -66,6 +83,9 @@ export function ContentAdminPage() {
         description="Actualiza la información del manual con un archivo oficial publicado por la Escuela de Ingeniería de Sistemas."
       />
       {state.warning && <Notice className="mb-5">{state.warning}</Notice>}
+      <div className="mb-5 empty:hidden" aria-live="polite">
+        <Feedback result={result} />
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel title="Versión actual">
@@ -76,9 +96,15 @@ export function ContentAdminPage() {
               : 'Contenido original incluido en el instalador'}
           </p>
           <p>
-            La app solo acepta archivos firmados con la llave de la escuela. Si un archivo fue
-            modificado por otra persona, se rechaza automáticamente.
+            La app solo acepta archivos firmados por la escuela. Si un archivo fue modificado por
+            otra persona, se rechaza automáticamente.
           </p>
+          {state.activeKeyIssuedAt && (
+            <p>
+              Llave de edición vigente desde el{' '}
+              {dateFormatter.format(new Date(state.activeKeyIssuedAt))}
+            </p>
+          )}
         </Panel>
 
         <Panel title="Actualizar esta computadora">
@@ -112,11 +138,11 @@ export function ContentAdminPage() {
           </div>
         </Panel>
 
-        <Panel title="Edición (solo personal autorizado)">
+        <Panel title="Edición (solo personal autorizado)" className="lg:col-span-2">
           {!state.signingConfigured ? (
             <p className="flex gap-2">
               <ShieldAlert className="size-5 shrink-0 text-warning" aria-hidden />
-              Esta instalación no tiene configurada la llave de la escuela.
+              Esta instalación no tiene configurada la llave maestra de la escuela.
             </p>
           ) : state.editorUnlocked ? (
             <>
@@ -151,11 +177,11 @@ export function ContentAdminPage() {
               }}
             >
               <p>
-                Escribe la contraseña de la llave y luego selecciona el archivo de la llave de la
-                escuela (.pem).
+                Escribe la contraseña de tu llave de edición y luego selecciona el archivo de la
+                llave (.psmkey).
               </p>
               <div className="space-y-1.5">
-                <Label htmlFor="key-passphrase">Contraseña de la llave</Label>
+                <Label htmlFor="key-passphrase">Contraseña de la llave de edición</Label>
                 <Input
                   id="key-passphrase"
                   type="password"
@@ -172,10 +198,8 @@ export function ContentAdminPage() {
               </Button>
             </form>
           )}
+          {state.signingConfigured && <NewEditorKeyForm busy={busy} run={run} />}
         </Panel>
-      </div>
-      <div className="mt-5">
-        <Feedback result={result} />
       </div>
     </>
   );

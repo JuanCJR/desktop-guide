@@ -1,13 +1,13 @@
 import { readFile, rename, rm, writeFile } from 'node:fs/promises';
 
-import type { PackageStorage } from './content-service';
+import type { TextStorage } from './content-service';
 
 function isNotFound(error: unknown): boolean {
   return error instanceof Error && 'code' in error && error.code === 'ENOENT';
 }
 
-/** Stores the active package in a single file, written atomically. */
-export function createFileStorage(filePath: string): PackageStorage {
+/** A single text file, written atomically. */
+export function createFileStorage(filePath: string): TextStorage {
   return {
     async read() {
       try {

@@ -27,7 +27,7 @@
     "test:coverage": "vitest run --coverage",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
     "package:win": "pnpm build && electron-builder --win --publish never",
-    "content:keygen": "node scripts/generate-content-key.mjs"
+    "content:master-key": "node scripts/generate-master-key.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [],

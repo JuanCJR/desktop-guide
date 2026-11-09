@@ -71,6 +71,21 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setState(await invoke('editor:lock'));
   }, []);
 
+  const createEditorKey = useCallback<ContentContextValue['createEditorKey']>(
+    async (masterPassphrase, newPassphrase) => {
+      const result = await invoke('editor:create-key', { masterPassphrase, newPassphrase });
+      if (result.status === 'cancelled') return null;
+      if (result.status === 'invalid') return { ok: false, message: result.message };
+      setState(result.state);
+      return {
+        ok: true,
+        message:
+          'Llave de edición nueva creada. Las llaves anteriores ya no sirven en esta computadora, y en las demás dejarán de servir cuando importen el próximo contenido publicado.',
+      };
+    },
+    [],
+  );
+
   const value = useMemo<ContentContextValue | null>(
     () =>
       state && {
@@ -82,8 +97,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         reset,
         unlock,
         lock,
+        createEditorKey,
       },
-    [state, publish, importPackage, exportPackage, reset, unlock, lock],
+    [state, publish, importPackage, exportPackage, reset, unlock, lock, createEditorKey],
   );
 
   if (loadError) {

@@ -14,6 +14,7 @@ export const IPC_CHANNELS = [
   'content:reset',
   'editor:unlock',
   'editor:lock',
+  'editor:create-key',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];

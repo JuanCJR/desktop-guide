@@ -14,6 +14,11 @@ export interface ContentContextValue {
   reset: () => Promise<void>;
   unlock: (passphrase: string) => Promise<ActionResult | null>;
   lock: () => Promise<void>;
+  /** Creates a new editor key with the master key, replacing older keys. */
+  createEditorKey: (
+    masterPassphrase: string,
+    newPassphrase: string,
+  ) => Promise<ActionResult | null>;
 }
 
 export const ContentContext = createContext<ContentContextValue | null>(null);
