@@ -12,12 +12,64 @@
 // Editor keys (the ones used to edit) are created inside the app, in
 // "Contenido del manual", with this master key.
 //
-// The passphrase is read from CONTENT_KEY_PASSPHRASE or asked interactively.
+// The passphrase is read from CONTENT_KEY_PASSPHRASE or asked twice
+// interactively, without echoing it on screen.
 import { generateKeyPairSync } from 'node:crypto';
 import { existsSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { stdin, stdout } from 'node:process';
 import { createInterface } from 'node:readline/promises';
+
+const MIN_LENGTH = 8;
+const RECOMMENDED_LENGTH = 12;
+const repoRoot = resolve(import.meta.dirname, '..');
+
+/** Line reader shared by every question when stdin is not a terminal. */
+let pipedLines = null;
+
+/** Reads a line from the terminal without showing what is typed. */
+async function askHidden(prompt) {
+  if (!stdin.isTTY) {
+    // Not a terminal (e.g. piped input): read the next line as-is.
+    stdout.write(prompt);
+    pipedLines ??= createInterface({ input: stdin, terminal: false })[Symbol.asyncIterator]();
+    const { value } = await pipedLines.next();
+    stdout.write('\n');
+    return value ?? '';
+  }
+  return new Promise((resolvePromise) => {
+    let value = '';
+    stdout.write(prompt);
+    stdin.setRawMode(true);
+    stdin.resume();
+    stdin.setEncoding('utf8');
+    const finish = () => {
+      stdin.setRawMode(false);
+      stdin.pause();
+      stdin.off('data', onData);
+      stdout.write('\n');
+    };
+    const onData = (chunk) => {
+      for (const char of chunk) {
+        if (char === '\r' || char === '\n') {
+          finish();
+          resolvePromise(value);
+          return;
+        }
+        if (char === '\u0003') {
+          finish();
+          process.exit(130);
+        }
+        if (char === '\u007f' || char === '\b') {
+          value = value.slice(0, -1);
+        } else {
+          value += char;
+        }
+      }
+    };
+    stdin.on('data', onData);
+  });
+}
 
 const output = process.argv[2];
 if (!output) {
@@ -25,6 +77,14 @@ if (!output) {
   process.exit(1);
 }
 const outputPath = resolve(output);
+const insideRepo = !relative(repoRoot, outputPath).startsWith('..');
+if (insideRepo) {
+  console.error(
+    `Refusing to write the master key inside the repository (${outputPath}). ` +
+      'Choose a folder outside it, e.g. a USB drive.',
+  );
+  process.exit(1);
+}
 if (existsSync(outputPath)) {
   console.error(`Refusing to overwrite ${outputPath}.`);
   process.exit(1);
@@ -32,13 +92,22 @@ if (existsSync(outputPath)) {
 
 let passphrase = process.env.CONTENT_KEY_PASSPHRASE ?? '';
 if (!passphrase) {
-  const rl = createInterface({ input: stdin, output: stdout });
-  passphrase = await rl.question('Passphrase for the master key (min. 8 characters): ');
-  rl.close();
+  passphrase = await askHidden(
+    `Passphrase for the master key (min. ${MIN_LENGTH}, ${RECOMMENDED_LENGTH}+ recommended): `,
+  );
+  const confirmation = await askHidden('Repeat the passphrase: ');
+  if (confirmation !== passphrase) {
+    console.error('The passphrases do not match. Nothing was written.');
+    process.exit(1);
+  }
+  await pipedLines?.return?.();
 }
-if (passphrase.length < 8) {
-  console.error('The passphrase must have at least 8 characters.');
+if (passphrase.length < MIN_LENGTH) {
+  console.error(`The passphrase must have at least ${MIN_LENGTH} characters.`);
   process.exit(1);
+}
+if (passphrase.length < RECOMMENDED_LENGTH) {
+  console.warn(`Warning: a passphrase of ${RECOMMENDED_LENGTH}+ characters is recommended.`);
 }
 
 const { publicKey, privateKey } = generateKeyPairSync('ed25519', {
