@@ -26,6 +26,9 @@ pnpm-debug.log*
 Thumbs.db
 .idea/
 
+# Local agent tooling (skill registry)
+.atl/
+
 # Content signing keys (never commit private keys)
 *.pem
 *.key
