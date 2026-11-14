@@ -23,6 +23,14 @@ de contenido, sin base de datos:
   archivo modificado por otra persona se rechaza y se sigue mostrando el
   contenido oficial.
 
+### Videos explicativos
+
+La app trae 4 videos de SAIA para docentes (con subtítulos en español), que se
+reproducen sin internet. Están en `src/renderer/src/assets/videos/` (`.mp4` +
+`.vtt`, unos 20 MB en total) y van dentro del instalador, así que **no se
+cambian desde el editor**. Lo que sí se edita es en qué sección se muestra cada
+uno («Video explicativo» en el editor de las páginas de texto).
+
 ### Las dos llaves
 
 | Llave                      | Quién la guarda                     | Para qué sirve                                 |

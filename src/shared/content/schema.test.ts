@@ -118,6 +118,34 @@ describe('manualContentSchema', () => {
       if (first) first.style = 'table';
       expect(manualContentSchema.safeParse(content).success).toBe(false);
     });
+
+    it('accept sections without the video field (packages from older versions)', () => {
+      const content = clone() as unknown as { rules: { sections: Record<string, unknown>[] } };
+      for (const section of content.rules.sections) delete section['video'];
+      const parsed = manualContentSchema.safeParse(content);
+      expect(parsed.success).toBe(true);
+      expect(parsed.data?.rules.sections[0]?.video).toBeUndefined();
+    });
+
+    it('reject an unknown video', () => {
+      const content = clone() as unknown as { rules: { sections: { video: string }[] } };
+      const [first] = content.rules.sections;
+      if (first) first.video = 'other-video';
+      expect(manualContentSchema.safeParse(content).success).toBe(false);
+    });
+
+    it('bundle the SAIA videos in the teacher pages', () => {
+      const videos = [
+        ...DEFAULT_CONTENT.teacherSaia.sections,
+        ...DEFAULT_CONTENT.teacherRules.sections,
+      ].flatMap((section) => (section.video ? [section.video] : []));
+      expect(videos.sort()).toEqual([
+        'dace-grades',
+        'saia-assignment',
+        'saia-classroom',
+        'saia-intro',
+      ]);
+    });
   });
 
   it('rejects repeated FAQ ids', () => {

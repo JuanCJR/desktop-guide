@@ -26,5 +26,10 @@ export default defineConfig({
       },
     },
     plugins: [react(), tailwindcss()],
+    build: {
+      // Los subtítulos (.vtt) se copian siempre como archivo: si Vite los
+      // incrustara como `data:`, la CSP (`default-src 'self'`) los bloquearía.
+      assetsInlineLimit: (filePath) => (filePath.endsWith('.vtt') ? false : undefined),
+    },
   },
 });

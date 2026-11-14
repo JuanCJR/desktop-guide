@@ -14,6 +14,7 @@
  * un instalador nuevo.
  */
 import type { ArticleSection, ManualContent, NoticeTone, SectionStyle } from './schema';
+import type { VideoId } from './videos';
 
 /** Arma una sección de artículo con los campos opcionales vacíos. */
 function section(
@@ -21,9 +22,19 @@ function section(
   title: string,
   style: SectionStyle,
   items: string[],
-  extra: { body?: string; notice?: string; noticeTone?: NoticeTone } = {},
+  extra: { body?: string; notice?: string; noticeTone?: NoticeTone; video?: VideoId } = {},
 ): ArticleSection {
-  return { id, title, style, items, body: '', notice: '', noticeTone: 'info', ...extra };
+  return {
+    id,
+    title,
+    style,
+    items,
+    body: '',
+    notice: '',
+    noticeTone: 'info',
+    video: null,
+    ...extra,
+  };
 }
 
 /**
@@ -478,6 +489,7 @@ export const DEFAULT_CONTENT: ManualContent = {
         ],
         {
           body: 'La institución te asigna un coordinador o tutor tecnológico que te capacita en:',
+          video: 'saia-intro',
         },
       ),
       section(
@@ -509,6 +521,26 @@ export const DEFAULT_CONTENT: ManualContent = {
           notice:
             'Está prohibido subir calificaciones al Aula DACE sin la validación previa: es una falta reglamentaria.',
           noticeTone: 'warning',
+          video: 'dace-grades',
+        },
+      ),
+      section(
+        'assignments',
+        'Crear tareas y evaluaciones en SAIA',
+        'numbered',
+        [
+          'Entra al aula virtual de tu materia y activa el «Modo de edición» (arriba a la derecha).',
+          'En la unidad que corresponda, pulsa el botón «+» y elige «Actividad o recurso».',
+          'Elige el tipo: «Tarea» para una evaluación con entrega de archivo (también hay cuestionarios, foros, archivos y enlaces de Teams) y pulsa «Añadir».',
+          'Escribe el nombre de la tarea, la descripción con las pautas de la evaluación y, si hace falta, adjunta el archivo con el enunciado.',
+          'En «Disponibilidad», fija desde y hasta cuándo se reciben entregas, según el cronograma de actividades del lapso.',
+          'En «Tipos de entrega», indica el tamaño máximo y los tipos de archivo aceptados (por ejemplo, solo documentos de Word o PDF).',
+          'Guarda con «Guardar cambios y regresar al curso» o «Guardar cambios y mostrar».',
+        ],
+        {
+          notice:
+            'Los dos botones guardan la tarea. Lo que decide si los estudiantes la ven es que esté visible: si en el curso aparece «Oculto para estudiantes», abre su menú (⋮) y elige «Mostrar».',
+          video: 'saia-assignment',
         },
       ),
       section('thesis', 'Trabajos de grado', 'bulleted', [
@@ -611,12 +643,18 @@ export const DEFAULT_CONTENT: ManualContent = {
         'Cumple la duración completa de tus clases presenciales. Si debes retirarte antes de la hora de salida, notifícalo en la Dirección de Escuela.',
         'Si faltaste de forma justificada, pide en la Dirección de Escuela el «Formato de Horas Recuperadas» y recupera las horas en un plazo máximo de 5 días, fuera del horario ordinario de clases.',
       ]),
-      section('online', 'Clases en línea (SAIA)', 'bulleted', [
-        'Entra a la plataforma SAIA todos los días, tantas horas como tenga asignadas cada materia.',
-        'Recibe los informes y las tareas, y aplica las evaluaciones, dentro de la plataforma SAIA.',
-        'Sube al aula virtual de cada materia una (1) clase pregrabada y mantén como mínimo una (1) reunión por Teams por semana con tus alumnos.',
-        'Usa el chat interactivo, el foro de dudas y preguntas y la cartelera informativa de SAIA para mantener el contacto con el alumnado.',
-      ]),
+      section(
+        'online',
+        'Clases en línea (SAIA)',
+        'bulleted',
+        [
+          'Entra a la plataforma SAIA todos los días, tantas horas como tenga asignadas cada materia.',
+          'Recibe los informes y las tareas, y aplica las evaluaciones, dentro de la plataforma SAIA.',
+          'Sube al aula virtual de cada materia una (1) clase pregrabada y mantén como mínimo una (1) reunión por Teams por semana con tus alumnos.',
+          'Usa el chat interactivo, el foro de dudas y preguntas y la cartelera informativa de SAIA para mantener el contacto con el alumnado.',
+        ],
+        { video: 'saia-classroom' },
+      ),
     ],
   },
   // ----- Artículo (docentes): normas de evaluación (Normativas lapso 2026-2) -----
