@@ -56,6 +56,10 @@ function CurrentPage({ page, onNavigate }: { page: PageId; onNavigate: (page: Pa
       return <ArticlePage articleKey="teacherSaia" />;
     case 'teacher-procedures':
       return <ArticlePage articleKey="teacherProcedures" />;
+    case 'teacher-rules':
+      return <ArticlePage articleKey="teacherRules" />;
+    case 'teacher-evaluation':
+      return <ArticlePage articleKey="teacherEvaluation" />;
     case 'faq':
       return <FaqPage />;
     case 'directory':

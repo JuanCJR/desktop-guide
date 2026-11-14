@@ -21,6 +21,8 @@ import {
   ListChecks,
   type LucideIcon,
   Monitor,
+  Scale,
+  ScrollText,
   Settings,
   ShieldCheck,
   Sun,
@@ -106,6 +108,12 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         keywords: ['expediente', 'recaudos', 'microclase', 'entrevista', 'curriculum'],
       },
       {
+        id: 'teacher-rules',
+        label: 'Normas del docente',
+        icon: ScrollText,
+        keywords: ['normas', 'vestimenta', 'horario', 'firma', 'puntualidad', 'teams', 'celulares'],
+      },
+      {
         id: 'teacher-calendar',
         label: 'Calendario del semestre',
         icon: CalendarDays,
@@ -116,6 +124,20 @@ export const NAV_SECTIONS: readonly NavSection[] = [
         label: 'PGA y notas en SAIA',
         icon: Monitor,
         keywords: ['pga', 'planificacion', 'aula dace', 'notas', 'subir', 'validador'],
+      },
+      {
+        id: 'teacher-evaluation',
+        label: 'Normas de evaluación',
+        icon: Scale,
+        keywords: [
+          'evaluacion',
+          'puntos',
+          'porcentaje',
+          'recuperativa',
+          'modificacion',
+          'notas',
+          'corte',
+        ],
       },
       {
         id: 'teacher-procedures',
@@ -167,6 +189,8 @@ export const ARTICLE_PAGES = {
   summer: { page: 'summer', audience: 'student' },
   rules: { page: 'rules', audience: 'student' },
   teacherOnboarding: { page: 'teacher-onboarding', audience: 'teacher' },
+  teacherRules: { page: 'teacher-rules', audience: 'teacher' },
+  teacherEvaluation: { page: 'teacher-evaluation', audience: 'teacher' },
   teacherSaia: { page: 'teacher-saia', audience: 'teacher' },
   teacherProcedures: { page: 'teacher-procedures', audience: 'teacher' },
 } as const satisfies Record<ArticleKey, { page: PageId; audience: Audience }>;

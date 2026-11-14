@@ -46,7 +46,7 @@ export function AppSidebar({
       {/* Grupos de pantallas; la opción actual se resalta. */}
       <nav
         aria-label="Secciones del manual"
-        className="-mr-2 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--sidebar-active)_transparent] space-y-3 overflow-y-auto pr-2"
+        className="-mr-2 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--sidebar-active)_transparent] space-y-2 overflow-y-auto pr-2"
       >
         {NAV_SECTIONS.map((section, index) => (
           <div key={section.title ?? index}>

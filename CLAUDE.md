@@ -74,6 +74,7 @@ src/
 │   │   ├── schema.ts        # Esquema Zod de TODO el contenido editable del manual
 │   │   ├── default-content.ts # Contenido original (el que trae el instalador)
 │   │   ├── package.ts       # Formatos: paquete .psm, certificado, llave .psmkey
+│   │   ├── migrate.ts       # Completa secciones nuevas en paquetes publicados antes
 │   │   ├── pages.ts         # Ids de las pantallas
 │   │   └── prerequisites.ts # Lógica del simulador de prelaciones
 │   └── ipc/
@@ -155,9 +156,17 @@ Reglas:
   simulador).
 - Para agregar una sección: agrégala al esquema y a `default-content.ts`,
   crea la página y su editor, y añade tests del esquema.
-- Cambiar el esquema de forma incompatible invalida los paquetes ya
-  publicados (la app vuelve al contenido original). Si hace falta, sube
-  `schemaVersion` y escribe una migración.
+- **Agregar secciones nuevas** (por ejemplo, una página) es compatible: al
+  abrir un paquete publicado con una versión anterior,
+  `src/shared/content/migrate.ts` completa las secciones que faltan con las
+  originales y conserva las editadas. Ojo: si una computadora ya tiene
+  contenido publicado, sus secciones existentes siguen mostrando lo publicado
+  aunque `default-content.ts` cambie; para ver los textos nuevos hay que
+  editarlos y publicarlos (o usar «Restaurar original»).
+- Cambiar el esquema de forma incompatible (renombrar o cambiar la forma de
+  una sección existente) invalida los paquetes ya publicados (la app vuelve al
+  contenido original). Si hace falta, sube `schemaVersion` y amplía la
+  migración.
 - **Seguridad del contenido** (cadena de confianza):
   1. La **llave maestra** se genera una vez con `pnpm content:master-key`.
      Su parte pública está en `src/main/content/public-key.ts`; la privada
