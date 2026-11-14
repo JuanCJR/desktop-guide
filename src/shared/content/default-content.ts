@@ -85,6 +85,20 @@ export const DEFAULT_CONTENT: ManualContent = {
         target: 'teacher-saia',
       },
       {
+        id: 'teacher-rules',
+        title: 'Normas del docente',
+        description: 'Vestimenta, firma de horas y clases en línea.',
+        audience: 'teacher',
+        target: 'teacher-rules',
+      },
+      {
+        id: 'evaluation-rules',
+        title: 'Normas de evaluación',
+        description: 'Máximo 20 puntos, porcentajes por corte y prueba recuperativa.',
+        audience: 'teacher',
+        target: 'teacher-evaluation',
+      },
+      {
         id: 'medical-excuse',
         title: 'Justificativo médico',
         description: 'Tienes de 48 a 72 horas hábiles para consignarlo en DACE.',
@@ -410,20 +424,22 @@ export const DEFAULT_CONTENT: ManualContent = {
         'Recaudos del expediente',
         'checklist',
         [
-          'Currículum vitae actualizado, fechado y firmado en la última página.',
-          'Fondo negro del título universitario de pregrado, registrado ante la oficina principal de registro público.',
-          'Copia simple del título de pregrado y de cada título de cuarto nivel (especialización, maestría, doctorado o diplomado).',
-          'Tres (3) fotografías de frente, tamaño carnet, recientes e idénticas.',
-          'Certificación oficial de calificaciones de pregrado (notas certificadas).',
-          'Copia ampliada y legible de la cédula de identidad.',
-          'Copia del Registro de Información Fiscal (RIF) vigente.',
-          'Constancia o carta de buena conducta de la autoridad civil, la prefectura o el consejo comunal.',
-          'Constancias laborales y de experiencia docente o en el ejercicio de la ingeniería.',
-          'Mínimo dos (2) cartas de referencia personal o comercial con teléfonos verificables.',
-          'Constancia o copia de una cuenta bancaria activa en el banco nómina de la institución (Banco de Venezuela).',
+          'Copia de la síntesis curricular (currículum vitae) actualizada, fechada y firmada en la última página.',
+          'Tres (3) fotografías tipo carnet, recientes e idénticas.',
+          'Tres (3) fotocopias legibles de la cédula de identidad.',
+          'Copia del Registro de Información Fiscal (RIF) actualizado.',
+          'Número de cuenta bancaria del Banco de Venezuela (banco nómina de la institución).',
+          'Copias de las constancias de trabajos anteriores (experiencia docente o en el ejercicio de la ingeniería).',
+          'Tres (3) referencias personales con números de teléfono verificables.',
+          'Dos (2) copias del certificado de salud mental.',
+          'Carta de buena conducta (de la autoridad civil, la prefectura o el consejo comunal).',
+          'Dos (2) copias de la partida de nacimiento.',
+          'Copia de las notas certificadas de la educación formal (pregrado).',
+          'Fondo negro y copia de los títulos: el de pregrado, registrado ante la oficina principal de registro público, y los de cuarto nivel si los tienes.',
+          'Copias de los certificados que mencionas en el currículum (cursos, diplomados y similares).',
         ],
         {
-          body: 'Organiza una carpeta tamaño oficio con originales y copias legibles, y consígnala en Recursos Humanos:',
+          body: 'Organiza una carpeta tamaño oficio con originales y copias legibles, y consígnala en Recursos Humanos. Esta es la lista oficial de requisitos de ingreso del personal docente contratado:',
         },
       ),
       section(
@@ -471,11 +487,12 @@ export const DEFAULT_CONTENT: ManualContent = {
         [
           'Descarga la plantilla oficial editable desde el aula virtual de soporte docente en SAIA.',
           'Llena una PGA por cada materia de tu carga horaria: objetivos, contenidos, estrategias, ponderaciones porcentuales y fechas exactas de evaluación.',
+          'Envíala por correo electrónico a tu Jefe de Escuela en las fechas que fije la normativa del lapso (lapso 2026-2: del 14 al 19 de septiembre de 2026).',
           'Cárgala en el módulo correspondiente de SAIA antes de que termine la semana 2, para su revisión y aprobación por la Jefatura.',
         ],
         {
-          body: 'La PGA es el contrato pedagógico formal entre el docente, los alumnos y la institución.',
-          notice: 'El plazo de la semana 2 es improrrogable.',
+          body: 'La PGA es el contrato pedagógico formal entre el docente, los alumnos y la institución, y se debe cumplir minuciosamente.',
+          notice: 'Los plazos de la PGA son improrrogables.',
           noticeTone: 'warning',
         },
       ),
@@ -524,6 +541,7 @@ export const DEFAULT_CONTENT: ManualContent = {
         'Recuperación de clases',
         'numbered',
         [
+          'Pide en la Dirección de Escuela el «Formato de Horas Recuperadas». La recuperación se hace en un plazo máximo de 5 días después de la falta y fuera del horario ordinario de clases.',
           'Acuerda con todos los alumnos de la sección un horario extraordinario que no choque con otras materias.',
           'Presenta la propuesta a la Jefatura de Escuela, que verifica la disponibilidad, autoriza la jornada y reserva el aula.',
           'Registra la actividad en la hoja de control de aula, firmada por los estudiantes asistentes.',
@@ -563,11 +581,128 @@ export const DEFAULT_CONTENT: ManualContent = {
       ),
     ],
   },
+  // ----- Artículo (docentes): normas internas (Normativas lapso 2026-2) -----
+  teacherRules: {
+    title: 'Normas del docente',
+    intro:
+      'Normas internas del IUPSM para el personal docente, según las Normativas y Reglamentos Institucionales del lapso 2026-2.',
+    sections: [
+      section('presentation', 'Presentación e imagen', 'bulleted', [
+        'Acude a la institución con vestimenta adecuada y en total pulcritud, sin jean ni ropa deportiva.',
+        'Mantén la imagen institucional también en las actividades en línea: clases pregrabadas, reuniones y videoconferencias.',
+        'Lleva siempre tu carnet institucional.',
+        'Respeta las normas de bioseguridad vigentes para entrar y permanecer en la institución.',
+      ]),
+      section(
+        'classroom',
+        'En el aula',
+        'bulleted',
+        [
+          'Propicia un clima de respeto y disciplina en el aula presencial y virtual, aplicando la normativa institucional.',
+          'No permitas el uso de celulares, iPod ni radios transmisores en las actividades presenciales.',
+          'No permitas fumar, ingerir bebidas alcohólicas ni estupefacientes en el aula ni en las instalaciones.',
+          'Cíñete a la Planificación General de la Asignatura (PGA) y lleva a diario el control de asistencia.',
+        ],
+        { notice: 'Se prohíbe el intercambio de notas entre profesores.', noticeTone: 'warning' },
+      ),
+      section('schedule', 'Cumplimiento de horario', 'bulleted', [
+        'Llega a la institución 10 minutos antes de tu clase presencial, o conéctate con esa misma anticipación en las actividades virtuales.',
+        'Firma tus horas de clase como máximo en los primeros 5 minutos del bloque: pasado ese tiempo, se cuenta 1 hora de inasistencia.',
+        'Cumple la duración completa de tus clases presenciales. Si debes retirarte antes de la hora de salida, notifícalo en la Dirección de Escuela.',
+        'Si faltaste de forma justificada, pide en la Dirección de Escuela el «Formato de Horas Recuperadas» y recupera las horas en un plazo máximo de 5 días, fuera del horario ordinario de clases.',
+      ]),
+      section('online', 'Clases en línea (SAIA)', 'bulleted', [
+        'Entra a la plataforma SAIA todos los días, tantas horas como tenga asignadas cada materia.',
+        'Recibe los informes y las tareas, y aplica las evaluaciones, dentro de la plataforma SAIA.',
+        'Sube al aula virtual de cada materia una (1) clase pregrabada y mantén como mínimo una (1) reunión por Teams por semana con tus alumnos.',
+        'Usa el chat interactivo, el foro de dudas y preguntas y la cartelera informativa de SAIA para mantener el contacto con el alumnado.',
+      ]),
+    ],
+  },
+  // ----- Artículo (docentes): normas de evaluación (Normativas lapso 2026-2) -----
+  teacherEvaluation: {
+    title: 'Normas de evaluación',
+    intro:
+      'Reglas para evaluar, entregar y corregir notas, según las Normativas y Reglamentos Institucionales del lapso 2026-2.',
+    sections: [
+      section(
+        'scores',
+        'Puntajes y porcentajes',
+        'bulleted',
+        [
+          'Ninguna evaluación o tarea puede valer más de 20 puntos (artículo 34 del Reglamento Interno de Evaluación del Rendimiento Estudiantil del IUPSM).',
+          '1er corte (30%): se distribuye en 10% y 20%.',
+          '2do corte (30%): se distribuye en 10% y 20%.',
+          '3er corte (40%): se distribuye en 20% y 20%.',
+          'Materias con horas de teoría y de laboratorio: 70% teoría y 30% laboratorio.',
+          'Proyecto de Investigación, Servicio Comunitario, Trabajo de Grado y Pasantías: la nota definitiva se carga solo en el 3er corte.',
+        ],
+        {
+          notice:
+            'Está terminantemente prohibido aplicar evaluaciones o asignar tareas de más de 20 puntos.',
+          noticeTone: 'warning',
+        },
+      ),
+      section('evaluating', 'Al evaluar', 'bulleted', [
+        'Antes de aplicarlos, envía por correo electrónico una copia de los instrumentos de evaluación de cada corte.',
+        'Informa a los estudiantes los resultados de cada actividad en un plazo máximo de 5 días hábiles (artículo 13 del Reglamento General de Evaluación del Rendimiento Estudiantil).',
+        'No hagas informes tipo ensayo en materias prácticas. Si usas un informe escrito en una materia teórica, presenta antes el esquema y cómo se evaluará, y al corregirlo señala con claridad las debilidades.',
+        'No permitas que los estudiantes envíen trabajos o tareas a correos personales: sin ese soporte no se podrá modificar ninguna nota.',
+      ]),
+      section(
+        'delivery',
+        'Entrega de notas a DACE',
+        'bulleted',
+        [
+          'Sube las notas digitalizadas a DACE, en la plataforma SAIA, en las fechas de cada corte: los estudiantes las necesitan para inscribirse.',
+          'Lapso 2026-2: 1er corte en la semana 6 (26 al 29 de octubre de 2026), 2do corte en la semana 12 (7 al 11 de diciembre de 2026) y 3er corte del 15 al 19 de febrero de 2027.',
+          'Al cargar las actas de cada corte, anota el número de inasistencias de cada alumno a cada evaluación.',
+          'No agregues alumnos a mano en las planillas de notas. Si un alumno aparece en SAIA pero no en las actas, infórmalo para que se haga el ajuste.',
+        ],
+        {
+          notice:
+            'La puntualidad en la entrega de notas se toma en cuenta en la evaluación del docente.',
+        },
+      ),
+      section(
+        'changes',
+        'Modificación de notas',
+        'bulleted',
+        [
+          'Solo procede por excepción y siempre con soporte: el examen o informe original, la captura de pantalla de la nota cargada en SAIA y la solicitud de corrección con tu firma manuscrita.',
+          'Las correcciones del 1er corte se entregan junto con las notas del 2do corte (semana 12), y las del 2do corte junto con las del 3er corte.',
+          'Los errores del 3er corte se corrigen dentro de los 5 días hábiles siguientes a su envío a DACE.',
+        ],
+        {
+          notice:
+            'No se admiten correcciones tardías (por ejemplo, corregir el 1er corte con la entrega del 3er corte), salvo casos excepcionales que afecten gravemente al estudiante.',
+          noticeTone: 'warning',
+        },
+      ),
+      section(
+        'online-absence',
+        'Evaluaciones en línea no presentadas',
+        'bulleted',
+        [
+          'Tiene un plazo máximo de 5 días hábiles para pedir presentarla en otra fecha.',
+          'Debe enviar el soporte digitalizado al correo institucional del Jefe de Escuela y al del docente de la materia.',
+        ],
+        {
+          body: 'Si un estudiante no presentó una evaluación en línea por una causa debidamente justificada (artículo 38 de la Normativa de Evaluación):',
+        },
+      ),
+      section('recovery', 'Prueba recuperativa', 'bulleted', [
+        'Puede presentarla el estudiante que cumplió todas las tareas y actividades del 1er y 2do corte y acumula entre 35% y 39% (7 puntos) (artículo 19, Gaceta Oficial N.º 5.342 del 6 de mayo de 1999).',
+        'El estudiante la solicita al docente por escrito o por correo electrónico.',
+        'Evalúa los objetivos del 2do corte y su propósito es mejorar la calificación de «deficiente».',
+      ]),
+    ],
+  },
   // ----- Calendario académico de docentes -----
   teacherCalendar: {
     title: 'Calendario del semestre',
     intro:
-      'El semestre dura 18 semanas y se califica en tres cortes. Toca una semana para ver qué tienes que entregar.',
+      'El semestre tiene 18 semanas de clase y se califica en tres cortes. Lapso 2026-2: del 21 de septiembre de 2026 al 20 de febrero de 2027. Toca una semana para ver qué tienes que entregar.',
     totalWeeks: 18,
     cuts: [
       { id: 'cut-1', name: '1er corte', percent: 30, fromWeek: 1, toWeek: 6 },
@@ -581,6 +716,13 @@ export const DEFAULT_CONTENT: ManualContent = {
         title: 'Reunión plenaria pre-semestre',
         description:
           'Reunión obligatoria con la Dirección y la Jefatura de Escuela, donde recibes la Carpeta Docente.',
+      },
+      {
+        id: 'pga-email',
+        week: 0,
+        title: 'PGA por correo al Jefe de Escuela',
+        description:
+          'Envía la Planificación General de cada materia al correo de tu Jefe de Escuela. Lapso 2026-2: del 14 al 19 de septiembre de 2026.',
       },
       {
         id: 'saia-induction',
@@ -620,7 +762,7 @@ export const DEFAULT_CONTENT: ManualContent = {
         week: 6,
         title: 'Validación y carga del 1er corte (30%)',
         description:
-          'Revisión presencial con tu validador y, con su visto bueno, carga en el Aula DACE.',
+          'Revisión presencial con tu validador y, con su visto bueno, carga en el Aula DACE. Lapso 2026-2: del 26 al 29 de octubre de 2026.',
       },
       {
         id: 'prevalidation-2',
@@ -633,7 +775,7 @@ export const DEFAULT_CONTENT: ManualContent = {
         week: 12,
         title: 'Validación y carga del 2do corte (30%)',
         description:
-          'Revisión presencial con tu validador y, con su visto bueno, carga en el Aula DACE.',
+          'Revisión presencial con tu validador y, con su visto bueno, carga en el Aula DACE. Incluye las correcciones del 1er corte. Lapso 2026-2: del 7 al 11 de diciembre de 2026.',
       },
       {
         id: 'prevalidation-3',
@@ -646,7 +788,7 @@ export const DEFAULT_CONTENT: ManualContent = {
         week: 18,
         title: 'Validación y carga del corte final (40%)',
         description:
-          'Revisión presencial con tu validador, carga en el Aula DACE y cierre del semestre.',
+          'Revisión presencial con tu validador, carga en el Aula DACE y cierre del semestre. Incluye las correcciones del 2do corte. Lapso 2026-2: del 15 al 19 de febrero de 2027.',
       },
     ],
   },
@@ -715,6 +857,21 @@ export const DEFAULT_CONTENT: ManualContent = {
           'Revisa tu solvencia administrativa. Los profesores tienen la instrucción de no firmar la solvencia ni dar calificaciones si la planilla no tiene el sello húmedo de Caja (que confirma que no debes mensualidades) y el sello de la Jefatura de Escuela.',
       },
       {
+        id: 'student-recovery-test',
+        audience: 'student',
+        question: '¿Puedo presentar una prueba recuperativa?',
+        answer:
+          'Sí, si cumpliste todas las tareas y actividades del 1er y 2do corte y acumulas entre 35% y 39% (7 puntos). Debes pedirla a tu profesor por escrito o por correo electrónico. Evalúa los objetivos del 2do corte y sirve para mejorar la calificación de «deficiente».',
+      },
+      {
+        id: 'student-online-absence',
+        audience: 'student',
+        question:
+          '¿Qué hago si no pude presentar una evaluación en línea por una causa justificada?',
+        answer:
+          'Tienes un máximo de 5 días hábiles para pedir presentarla en otra fecha. Envía el soporte digitalizado al correo institucional del Jefe de Escuela y al de tu profesor.',
+      },
+      {
         id: 'teacher-saia-login',
         audience: 'teacher',
         question: '¿Qué hago si no puedo entrar a SAIA o no veo mis materias?',
@@ -763,6 +920,27 @@ export const DEFAULT_CONTENT: ManualContent = {
         question: '¿Qué hago si por una emergencia no puedo dar clases?',
         answer:
           'Avisa a la Jefatura de Escuela lo antes posible. Después, preséntate a llenar el formato de permiso, acuerda con tus alumnos una fecha de recuperación y pide a la Jefatura que asigne y reserve el aula.',
+      },
+      {
+        id: 'teacher-max-points',
+        audience: 'teacher',
+        question: '¿Cuántos puntos puede valer como máximo una evaluación?',
+        answer:
+          'Ninguna evaluación ni tarea puede valer más de 20 puntos (artículo 34 del Reglamento Interno de Evaluación del Rendimiento Estudiantil del IUPSM). Los cortes se distribuyen así: 1er corte 10% y 20%, 2do corte 10% y 20%, 3er corte 20% y 20%.',
+      },
+      {
+        id: 'teacher-grade-change',
+        audience: 'teacher',
+        question: '¿Cómo corrijo una nota que ya entregué a DACE?',
+        answer:
+          'Solo por excepción y con soporte: el examen o informe original, la captura de pantalla de la nota en SAIA y la solicitud de corrección firmada. Las correcciones del 1er corte se entregan con el 2do corte (semana 12) y las del 2do con el 3er corte. Los errores del 3er corte se corrigen dentro de los 5 días hábiles siguientes a su envío.',
+      },
+      {
+        id: 'teacher-late-signature',
+        audience: 'teacher',
+        question: '¿Qué pasa si firmo mis horas de clase tarde?',
+        answer:
+          'Las horas se firman como máximo en los primeros 5 minutos del bloque. Pasado ese tiempo, se cuenta 1 hora de inasistencia.',
       },
       {
         id: 'teacher-thesis',

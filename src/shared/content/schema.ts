@@ -207,7 +207,9 @@ export const ARTICLE_KEYS = [
   'summer',
   'rules',
   'teacherOnboarding',
+  'teacherRules',
   'teacherSaia',
+  'teacherEvaluation',
   'teacherProcedures',
 ] as const;
 export type ArticleKey = (typeof ARTICLE_KEYS)[number];
@@ -329,6 +331,8 @@ export const manualContentSchema = z
     teacherOnboarding: articleSchema,
     teacherSaia: articleSchema,
     teacherProcedures: articleSchema,
+    teacherRules: articleSchema,
+    teacherEvaluation: articleSchema,
     teacherCalendar: calendarSchema,
     faq: faqSchema,
     directory: directorySchema,

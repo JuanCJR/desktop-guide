@@ -33,6 +33,8 @@ import {
   editorKeyFileSchema,
   packageMessage,
 } from '@shared/content/package';
+import { DEFAULT_CONTENT } from '@shared/content/default-content';
+import { fillMissingSections } from '@shared/content/migrate';
 import { type ManualContent, manualContentSchema } from '@shared/content/schema';
 
 export type OpenPackageResult =
@@ -197,7 +199,11 @@ export function openPackage(raw: string, masterPublicKey: KeyObject): OpenPackag
     };
   }
 
-  const content = manualContentSchema.safeParse(parseJson(payload));
+  // Las secciones que agregó una versión más nueva de la app se completan con
+  // las originales, para no descartar el contenido publicado con la anterior.
+  const content = manualContentSchema.safeParse(
+    fillMissingSections(parseJson(payload), DEFAULT_CONTENT),
+  );
   if (!content.success) {
     return { ok: false, message: 'El paquete fue creado con una versión incompatible.' };
   }

@@ -153,3 +153,23 @@ describe('keys', () => {
     ).toBeNull();
   });
 });
+
+describe('content compatibility', () => {
+  it('accept packages published before new sections existed', () => {
+    const {
+      teacherRules: _rules,
+      teacherEvaluation: _evaluation,
+      ...older
+    } = {
+      ...DEFAULT_CONTENT,
+      home: { ...DEFAULT_CONTENT.home, title: 'Publicado antes' },
+    };
+    const pkg = createPackage(older as typeof DEFAULT_CONTENT, editor.key, editor.certificate, NOW);
+    const opened = openPackage(JSON.stringify(pkg), master.publicKey);
+    expect(opened.ok).toBe(true);
+    if (opened.ok) {
+      expect(opened.content.home.title).toBe('Publicado antes');
+      expect(opened.content.teacherRules).toEqual(DEFAULT_CONTENT.teacherRules);
+    }
+  });
+});
