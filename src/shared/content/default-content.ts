@@ -218,24 +218,24 @@ export const DEFAULT_CONTENT: ManualContent = {
     intro:
       'Marca las materias que reprobaste en 1er semestre y mira cuáles de 2º semestre quedarían bloqueadas.',
     disclaimer:
-      'Es un simulacro con las materias de 1º y 2º semestre del Plan de Estudio 2011 de Ingeniería de Sistemas, para que entiendas cómo funcionan las prelaciones. No reemplaza la asesoría con el Jefe de Escuela.',
+      'Es un simulacro con las materias de 1º y 2º semestre del Plan de Estudio de Ingeniería de Sistemas (lapso 2012-1), para que entiendas cómo funcionan las prelaciones. No reemplaza la asesoría con el Jefe de Escuela.',
     failedHint:
       'Puedes nivelar las materias reprobadas en el curso intensivo de verano (máximo 2 materias por período).',
     firstSemester: [
       { code: '4701121', name: 'Lenguaje y Comunicación', credits: 2 },
       { code: '4703121', name: 'Metodología de la Investigación I', credits: 2 },
-      { code: '4701141', name: 'Matemática I', credits: 4 },
+      { code: '4701141', name: 'Matemáticas I', credits: 4 },
       { code: '4702121', name: 'Actividad de Orientación', credits: 2 },
-      { code: '4702111', name: 'Educación Física y Deportes I', credits: 1 },
+      { code: '4702111', name: 'Educación, Salud Física y Deportes I', credits: 1 },
       { code: '4701111', name: 'Actividad de Formación Cultural I', credits: 1 },
       { code: '4704121', name: 'Introducción a la Ingeniería de Sistemas', credits: 2 },
-      { code: '4701131', name: 'Álgebra', credits: 3 },
+      { code: '4701131', name: 'Álgebra I', credits: 3 },
       { code: '4705121', name: 'Introducción a la Computación', credits: 2 },
     ],
     secondSemester: [
       { code: '4703222', name: 'Introducción a la Administración', credits: 2, prerequisites: [] },
       { code: '4702222', name: 'Economía General', credits: 2, prerequisites: [] },
-      { code: '4701242', name: 'Matemática II', credits: 4, prerequisites: ['4701141'] },
+      { code: '4701242', name: 'Matemáticas II', credits: 4, prerequisites: ['4701141'] },
       {
         code: '4702112',
         name: 'Educación, Salud Física y Deportes II',
@@ -357,7 +357,7 @@ export const DEFAULT_CONTENT: ManualContent = {
         ],
         {
           notice:
-            'Si reprobaste Matemática I, se recomienda nivelarla en verano: sin ella no puedes inscribir Matemática II, Física I ni Álgebra Lineal.',
+            'Si reprobaste Matemáticas I, se recomienda nivelarla en verano: sin ella no puedes inscribir Matemáticas II, Física I ni Álgebra Lineal.',
         },
       ),
     ],
@@ -800,9 +800,9 @@ export const DEFAULT_CONTENT: ManualContent = {
       {
         id: 'student-failed-math',
         audience: 'student',
-        question: '¿Qué pasa si repruebo Matemática I en el primer semestre?',
+        question: '¿Qué pasa si repruebo Matemáticas I en el primer semestre?',
         answer:
-          'No podrás inscribir Matemática II, Física I ni Álgebra Lineal en el segundo semestre por el régimen de prelaciones. Se recomienda que te censes en el período intensivo de verano para nivelar Matemática I y no atrasar tu carrera.',
+          'No podrás inscribir Matemáticas II, Física I ni Álgebra Lineal en el segundo semestre por el régimen de prelaciones. Se recomienda que te censes en el período intensivo de verano para nivelar Matemática I y no atrasar tu carrera.',
       },
       {
         id: 'student-saia-or-campus',
