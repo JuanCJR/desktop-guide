@@ -19,6 +19,7 @@
 import { z } from 'zod';
 
 import { LINKABLE_PAGE_IDS } from './pages';
+import { VIDEO_IDS } from './videos';
 
 // ---------------------------------------------------------------------------
 // Reglas básicas reutilizables (textos, identificadores, códigos de materia)
@@ -189,6 +190,12 @@ export const articleSectionSchema = z.object({
   /** Mensaje destacado; si se deja vacío, no se muestra. */
   notice: optionalText(400),
   noticeTone: noticeToneSchema,
+  /**
+   * Video explicativo que se muestra en la sección, o `null` si no lleva.
+   * Opcional: el contenido publicado con versiones anteriores no lo tenía, y en
+   * ese caso la sección queda sin video.
+   */
+  video: z.enum(VIDEO_IDS).nullish(),
 });
 export type ArticleSection = z.infer<typeof articleSectionSchema>;
 

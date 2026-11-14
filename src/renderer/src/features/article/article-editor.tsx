@@ -7,7 +7,7 @@
  * manual completo. Los campos reutilizables vienen de `@/features/editor/`;
  * los límites de cada campo están en `src/shared/content/schema.ts`.
  * Permite cambiar el título, la introducción y cada sección (agregar,
- * quitar o reordenar secciones y sus elementos).
+ * quitar o reordenar secciones y sus elementos) y elegir el video que muestra.
  */
 import {
   AddButton,
@@ -21,7 +21,9 @@ import { SelectField } from '@/features/editor/select-field';
 import { useSectionDraft } from '@/features/editor/use-section-draft';
 import { moveItem, removeAt, replaceAt } from '@/lib/list';
 import { newId } from '@/lib/new-id';
+import { VIDEOS } from '@/lib/videos';
 import type { ArticleKey, ArticleSection, NoticeTone, SectionStyle } from '@shared/content/schema';
+import { VIDEO_IDS, type VideoId } from '@shared/content/videos';
 
 // Opciones que se muestran en las listas desplegables del formulario.
 const STYLE_OPTIONS = [
@@ -34,6 +36,13 @@ const TONE_OPTIONS = [
   ['info', 'Información (azul)'],
   ['warning', 'Importante (naranja)'],
 ] as const satisfies readonly (readonly [NoticeTone, string])[];
+
+// Lista de videos para elegir; "none" significa que la sección no lleva video.
+const NO_VIDEO = 'none';
+const VIDEO_OPTIONS: readonly (readonly [VideoId | typeof NO_VIDEO, string])[] = [
+  [NO_VIDEO, 'Sin video'],
+  ...VIDEO_IDS.map((id) => [id, VIDEOS[id].title] as const),
+];
 
 // Campos de una sección: título, texto, estilo, elementos y aviso.
 function SectionFields({
@@ -101,6 +110,14 @@ function SectionFields({
           }}
         />
       </div>
+      <SelectField
+        label="Video explicativo"
+        value={section.video ?? NO_VIDEO}
+        options={VIDEO_OPTIONS}
+        onChange={(video) => {
+          update({ video: video === NO_VIDEO ? null : video });
+        }}
+      />
     </>
   );
 }
@@ -181,6 +198,7 @@ export function ArticleEditor({
               items: [],
               notice: '',
               noticeTone: 'info',
+              video: null,
             },
           ]);
         }}
