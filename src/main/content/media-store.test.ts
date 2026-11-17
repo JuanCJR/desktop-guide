@@ -44,7 +44,48 @@ describe('MediaStore', () => {
   it('rejects files that are not MP4 videos', async () => {
     const source = join(dir, 'falso.mp4');
     await writeFile(source, Buffer.from('esto no es un video'));
-    expect(await store.addVideo(source)).toMatchObject({ ok: false });
+    expect(await store.addVideo(source)).toEqual({
+      ok: false,
+      message: 'El archivo no es un video MP4 válido.',
+    });
+  });
+
+  it('rejects other extensions even if the content is a real MP4', async () => {
+    const source = join(dir, 'video.avi');
+    await writeFile(source, mp4);
+    expect(await store.addVideo(source)).toEqual({
+      ok: false,
+      message: 'Solo se aceptan videos MP4.',
+    });
+    const exe = join(dir, 'programa.exe');
+    await writeFile(exe, Buffer.from('MZ'));
+    let called = false;
+    const result = await store.addImage(exe, () => {
+      called = true;
+      return Promise.resolve(Buffer.from('x'));
+    });
+    expect(result).toEqual({ ok: false, message: 'Solo se aceptan imágenes JPG o PNG.' });
+    expect(called).toBe(false);
+  });
+
+  it('rejects QuickTime MOV videos renamed to .mp4', async () => {
+    const source = join(dir, 'iphone.mp4');
+    const mov = Buffer.concat([
+      Buffer.from([0, 0, 0, 20]),
+      Buffer.from('ftypqt  '),
+      Buffer.alloc(50),
+    ]);
+    await writeFile(source, mov);
+    expect(await store.addVideo(source)).toMatchObject({
+      ok: false,
+      message: expect.stringMatching(/MOV/) as unknown,
+    });
+  });
+
+  it('accepts upper-case extensions', async () => {
+    const source = join(dir, 'CLASE.MP4');
+    await writeFile(source, mp4);
+    expect(await store.addVideo(source)).toMatchObject({ ok: true });
   });
 
   it('stores the encoded JPG of an image and rejects files the encoder cannot read', async () => {

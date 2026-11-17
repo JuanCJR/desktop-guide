@@ -31,6 +31,11 @@ import {
 
 export type AddResult<T> = { ok: true; file: T } | { ok: false; message: string };
 
+// Extensiones aceptadas al subir. El diálogo de Windows ya filtra por ellas,
+// pero se vuelve a revisar aquí por si alguien escribe otro nombre a mano.
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png']);
+const VIDEO_EXTENSIONS = new Set(['.mp4']);
+
 /** Reduce y comprime una imagen; devuelve el JPG o `null` si no es una imagen válida. */
 export type ImageEncoder = (sourcePath: string, maxSide: number) => Promise<Buffer | null>;
 
@@ -91,6 +96,9 @@ export class MediaStore {
 
   /** Agrega una imagen elegida por el usuario: la reduce, la comprime a JPG y la guarda. */
   async addImage(sourcePath: string, encode: ImageEncoder): Promise<AddResult<UploadedImage>> {
+    if (!IMAGE_EXTENSIONS.has(extname(sourcePath).toLowerCase())) {
+      return { ok: false, message: 'Solo se aceptan imágenes JPG o PNG.' };
+    }
     const info = await stat(sourcePath);
     if (info.size > MEDIA_LIMITS.imageInputBytes) {
       return {
@@ -106,6 +114,9 @@ export class MediaStore {
 
   /** Agrega un video MP4 elegido por el usuario (sin modificarlo). */
   async addVideo(sourcePath: string): Promise<AddResult<UploadedVideo>> {
+    if (!VIDEO_EXTENSIONS.has(extname(sourcePath).toLowerCase())) {
+      return { ok: false, message: 'Solo se aceptan videos MP4.' };
+    }
     const info = await stat(sourcePath);
     if (info.size > MEDIA_LIMITS.videoBytes) {
       return {
@@ -113,9 +124,15 @@ export class MediaStore {
         message: `El video pesa ${formatMegabytes(info.size)}; el máximo es ${formatMegabytes(MEDIA_LIMITS.videoBytes)}. Comprímelo antes de subirlo.`,
       };
     }
-    if (!(await looksLikeMp4(sourcePath))) {
-      return { ok: false, message: 'El archivo no es un video MP4 válido.' };
+    const kind = await videoKind(sourcePath);
+    if (kind === 'quicktime') {
+      return {
+        ok: false,
+        message:
+          'Es un video MOV (QuickTime) con el nombre cambiado. Conviértelo a MP4 antes de subirlo.',
+      };
     }
+    if (kind !== 'mp4') return { ok: false, message: 'El archivo no es un video MP4 válido.' };
     const { hash, size } = await this.write(createReadStream(sourcePath), 'mp4');
     return { ok: true, file: { hash, ext: 'mp4', name: displayName(sourcePath, 'mp4'), size } };
   }
@@ -136,13 +153,17 @@ export class MediaStore {
   }
 }
 
-// Un MP4 tiene la marca "ftyp" en los bytes 4 a 7.
-async function looksLikeMp4(path: string): Promise<boolean> {
+// Tipo de video según su cabecera: un MP4 tiene la marca "ftyp" en los bytes
+// 4 a 7 y, en los 8 a 11, su variante. Los MOV de QuickTime (por ejemplo, los
+// del iPhone) usan la misma estructura con la variante "qt  ", así que se
+// distinguen para avisar con un mensaje claro.
+async function videoKind(path: string): Promise<'mp4' | 'quicktime' | 'other'> {
   const handle = await open(path, 'r');
   try {
     const header = Buffer.alloc(12);
     const { bytesRead } = await handle.read(header, 0, 12, 0);
-    return bytesRead === 12 && header.toString('latin1', 4, 8) === 'ftyp';
+    if (bytesRead < 12 || header.toString('latin1', 4, 8) !== 'ftyp') return 'other';
+    return header.toString('latin1', 8, 12) === 'qt  ' ? 'quicktime' : 'mp4';
   } finally {
     await handle.close();
   }
