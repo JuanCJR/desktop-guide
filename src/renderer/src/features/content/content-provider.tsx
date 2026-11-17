@@ -71,9 +71,12 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Volver al contenido original de la app.
+  // Volver al contenido original de la app (main pide confirmación antes).
   const reset = useCallback(async () => {
-    setState(await invoke('content:reset'));
+    const result = await invoke('content:reset');
+    if (result.status === 'cancelled') return null;
+    setState(result.state);
+    return { ok: true, message: 'Se restauró el contenido original.' } as const;
   }, []);
 
   // Activar / desactivar el modo edición con la llave de la escuela.

@@ -103,6 +103,30 @@ async function confirmOlderPackage(
   return response === 1;
 }
 
+// Pregunta con un aviso de Windows si de verdad se quiere volver al contenido
+// original, porque se pierde lo publicado en esta computadora (y es fácil
+// pulsar el botón sin querer). "Cancelar" es la opción por defecto.
+async function confirmReset(event: IpcMainInvokeEvent): Promise<boolean> {
+  const window = ownerWindow(event);
+  const options: Electron.MessageBoxOptions = {
+    type: 'warning',
+    title: 'Restaurar original',
+    message: '¿Seguro que quieres volver al contenido original?',
+    detail:
+      'Esta computadora dejará de mostrar el contenido publicado y volverá al que trae el ' +
+      'instalador, en todas las páginas del manual.\n\n' +
+      'Para recuperar lo publicado tendrás que importar de nuevo el archivo .psm de la escuela.',
+    buttons: ['Cancelar', 'Restaurar original'],
+    defaultId: 0,
+    cancelId: 0,
+    noLink: true,
+  };
+  const { response } = window
+    ? await dialog.showMessageBox(window, options)
+    : await dialog.showMessageBox(options);
+  return response === 1;
+}
+
 // Lee un archivo solo si no supera un tamaño máximo, para no cargar archivos
 // enormes por error (o a propósito).
 async function readSmallFile(path: string, maxBytes: number): Promise<string | null> {
@@ -148,10 +172,11 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
       return { status: 'saved' };
     },
 
-    // Vuelve al contenido original que viene con la app.
-    'content:reset': async () => {
+    // Vuelve al contenido original que viene con la app, después de confirmarlo.
+    'content:reset': async (_request, event) => {
+      if (!(await confirmReset(event))) return { status: 'cancelled' };
       await service.reset();
-      return service.getState();
+      return { status: 'reset', state: await service.getState() };
     },
 
     // Activa el modo edición: pide el archivo de la llave y lo abre con la contraseña.

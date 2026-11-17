@@ -31,6 +31,15 @@ subtítulos en español), que se reproducen sin internet. Están en
 cambian desde el editor**. Lo que sí se edita es en qué sección se muestra cada
 uno («Video explicativo» en el editor de las páginas de texto).
 
+### Imágenes de referencia
+
+Además, 12 imágenes sacadas de los videos (con los datos personales
+difuminados) ilustran pasos de SAIA en las páginas de texto. Están en
+`src/renderer/src/assets/images/` (.webp, unos 430 KB en total) y también van
+dentro del instalador. En el editor de cada sección se eligen sus imágenes
+(hasta 6), su orden y su pie de foto. Al hacer clic en una imagen se ve en
+grande.
+
 ### Las dos llaves
 
 | Llave                      | Quién la guarda                     | Para qué sirve                                 |

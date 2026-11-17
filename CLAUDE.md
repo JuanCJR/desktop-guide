@@ -86,7 +86,7 @@ src/
     ├── index.html           # Incluye la Content-Security-Policy
     └── src/
         ├── main.tsx / app.tsx
-        ├── assets/          # Logos del IUPSM y videos explicativos (videos/)
+        ├── assets/          # Logos, videos explicativos (videos/) e imágenes (images/)
         ├── components/ui/   # Componentes shadcn/ui (generados, editables)
         ├── components/      # Componentes propios reutilizables (Notice, AudienceTag…)
         ├── features/<feature>/  # Pantallas por funcionalidad, cada una con su editor
@@ -193,6 +193,12 @@ Reglas:
   `VIDEOS` (con su proporción en `aspect`, p. ej. `aspect-[1920/872]`). Mantenlos comprimidos (H.264 CRF ~27, AAC mono 96k, `+faststart`):
   agrandan el repositorio y el instalador. La CSP (`default-src 'self'`) ya
   permite cargarlos; no agregues orígenes remotos.
+- **Imágenes de referencia**: cuadros de los videos en
+  `src/renderer/src/assets/images/` (.webp, ~1600 px de ancho, con los datos
+  personales difuminados). Sus ids están en `src/shared/content/images.ts`
+  (`IMAGE_IDS`) y su nombre y archivo en `src/renderer/src/lib/images.ts`. Una
+  sección de artículo las lista en su campo opcional `images` (id + pie de
+  foto, máximo `MAX_SECTION_IMAGES`); las muestra `components/image-gallery.tsx`.
 - Las preferencias locales (casillas marcadas) se guardan en `localStorage`
   con `usePersistedSet`; nunca guardes contenido ahí.
 

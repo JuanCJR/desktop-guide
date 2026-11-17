@@ -5,9 +5,12 @@
  * La usan varias pantallas del menú (primer ingreso a SAIA, trámites, cursos de
  * verano, normas y las pantallas para docentes); cada una muestra una parte
  * distinta del contenido (ver `ARTICLE_PAGES` en `@/lib/navigation.ts`).
- * Una sección también puede mostrar un video explicativo (`@/components/video-player.tsx`).
+ * Una sección también puede mostrar imágenes de referencia
+ * (`@/components/image-gallery.tsx`) y un video explicativo
+ * (`@/components/video-player.tsx`).
  * Su formulario de edición está en `./article-editor.tsx`.
  */
+import { ImageGallery } from '@/components/image-gallery';
 import { Notice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { VideoPlayer } from '@/components/video-player';
@@ -109,6 +112,11 @@ export function ArticlePage({ articleKey }: { articleKey: ArticleKey }) {
                   section={section}
                   storageKey={`checklist:${articleKey}:${section.id}`}
                 />
+              </div>
+            )}
+            {section.images && section.images.length > 0 && (
+              <div className="mt-4">
+                <ImageGallery images={section.images} />
               </div>
             )}
             {section.video && (

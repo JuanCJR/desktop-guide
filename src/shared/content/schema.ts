@@ -19,6 +19,7 @@
 import { z } from 'zod';
 
 import { LINKABLE_PAGE_IDS } from './pages';
+import { IMAGE_IDS, MAX_SECTION_IMAGES } from './images';
 import { VIDEO_IDS } from './videos';
 
 // ---------------------------------------------------------------------------
@@ -180,6 +181,13 @@ export type SectionStyle = z.infer<typeof sectionStyleSchema>;
 export const noticeToneSchema = z.enum(['warning', 'info']);
 export type NoticeTone = z.infer<typeof noticeToneSchema>;
 
+/** Imagen de referencia de una sección, con su pie de foto (puede quedar vacío). */
+export const sectionImageSchema = z.object({
+  id: z.enum(IMAGE_IDS),
+  caption: optionalText(200),
+});
+export type SectionImage = z.infer<typeof sectionImageSchema>;
+
 export const articleSectionSchema = z.object({
   id: idSchema,
   title: text(120),
@@ -196,6 +204,14 @@ export const articleSectionSchema = z.object({
    * ese caso la sección queda sin video.
    */
   video: z.enum(VIDEO_IDS).nullish(),
+  /**
+   * Imágenes de referencia que se muestran debajo de los elementos. Opcional
+   * por la misma razón que `video`: el contenido anterior no las tenía.
+   */
+  images: z
+    .array(sectionImageSchema)
+    .max(MAX_SECTION_IMAGES, `Máximo ${String(MAX_SECTION_IMAGES)} imágenes por sección.`)
+    .nullish(),
 });
 export type ArticleSection = z.infer<typeof articleSectionSchema>;
 
