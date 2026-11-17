@@ -13,5 +13,6 @@ export const VIDEO_IDS = [
   'dace-grades',
   'saia-classroom',
   'saia-assignment',
+  'saia-student',
 ] as const;
 export type VideoId = (typeof VIDEO_IDS)[number];

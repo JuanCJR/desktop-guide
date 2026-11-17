@@ -25,9 +25,9 @@ de contenido, sin base de datos:
 
 ### Videos explicativos
 
-La app trae 4 videos de SAIA para docentes (con subtítulos en español), que se
-reproducen sin internet. Están en `src/renderer/src/assets/videos/` (`.mp4` +
-`.vtt`, unos 20 MB en total) y van dentro del instalador, así que **no se
+La app trae 5 videos de SAIA (4 para docentes y 1 para estudiantes, con
+subtítulos en español), que se reproducen sin internet. Están en
+`src/renderer/src/assets/videos/` (`.mp4` + `.vtt`, unos 31 MB en total) y van dentro del instalador, así que **no se
 cambian desde el editor**. Lo que sí se edita es en qué sección se muestra cada
 uno («Video explicativo» en el editor de las páginas de texto).
 

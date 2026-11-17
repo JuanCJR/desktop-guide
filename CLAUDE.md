@@ -190,7 +190,7 @@ Reglas:
   archivos en `src/renderer/src/lib/videos.ts`. Una sección de artículo lo
   elige con su campo opcional `video`; lo muestra `components/video-player.tsx`.
   Para agregar uno: copia los archivos, su id a `VIDEO_IDS` y su entrada a
-  `VIDEOS`. Mantenlos comprimidos (H.264 CRF ~27, AAC mono 96k, `+faststart`):
+  `VIDEOS` (con su proporción en `aspect`, p. ej. `aspect-[1920/872]`). Mantenlos comprimidos (H.264 CRF ~27, AAC mono 96k, `+faststart`):
   agrandan el repositorio y el instalador. La CSP (`default-src 'self'`) ya
   permite cargarlos; no agregues orígenes remotos.
 - Las preferencias locales (casillas marcadas) se guardan en `localStorage`
