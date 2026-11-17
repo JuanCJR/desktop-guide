@@ -8,6 +8,7 @@
  */
 import { CirclePlay } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
 import { VIDEOS } from '@/lib/videos';
 import type { VideoId } from '@shared/content/videos';
 
@@ -16,7 +17,7 @@ export function VideoPlayer({ video }: { video: VideoId }) {
   return (
     <figure className="overflow-hidden rounded-lg border bg-muted">
       {/* `preload="metadata"`: solo lee la duración hasta que se pulse reproducir. */}
-      <video controls preload="metadata" className="aspect-[1920/872] w-full bg-black">
+      <video controls preload="metadata" className={cn('w-full bg-black', info.aspect)}>
         <source src={info.src} type="video/mp4" />
         <track kind="subtitles" srcLang="es" label="Español" src={info.subtitles} default />
       </video>

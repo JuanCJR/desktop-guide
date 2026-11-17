@@ -134,6 +134,13 @@ describe('manualContentSchema', () => {
       expect(manualContentSchema.safeParse(content).success).toBe(false);
     });
 
+    it('bundle the student SAIA video in the first-login page', () => {
+      const videos = DEFAULT_CONTENT.saiaFirstLogin.sections.flatMap((section) =>
+        section.video ? [section.video] : [],
+      );
+      expect(videos).toEqual(['saia-student']);
+    });
+
     it('bundle the SAIA videos in the teacher pages', () => {
       const videos = [
         ...DEFAULT_CONTENT.teacherSaia.sections,

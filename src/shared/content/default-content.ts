@@ -296,16 +296,24 @@ export const DEFAULT_CONTENT: ManualContent = {
         'Primer ingreso paso a paso',
         'numbered',
         [
-          'Entra desde el navegador al portal oficial de SAIA del Politécnico Santiago Mariño, extensión Maracay.',
-          'Inicia sesión con los datos que te dieron en la matrícula: por lo general, el usuario es tu número de cédula (sin puntos ni letras) y la contraseña es la provisional que asignó el sistema.',
+          'Entra desde el navegador al portal oficial de SAIA del Politécnico Santiago Mariño (saia2.psm.edu.ve).',
+          'Pulsa el botón «Microsoft 365» e inicia sesión con la cuenta institucional y la contraseña que te dieron en la matrícula (la cuenta suele ser tu número de cédula seguido de @psm.edu.ve).',
           'La primera vez, el sistema te pedirá cambiar la contraseña por una clave segura personal y verificar tu correo electrónico institucional.',
           'En el panel principal, comprueba que aparezcan todas las materias de tu horario oficial de inscripción.',
         ],
         {
           notice:
             'Si no puedes entrar o no ves tus materias, acude a la Coordinación de SAIA y Tecnología Educativa, en el área de laboratorios de informática.',
+          video: 'saia-student',
         },
       ),
+      section('using', 'Cómo usar SAIA', 'bulleted', [
+        'Página principal: notificaciones de contenido nuevo en tus materias y de tareas por entregar.',
+        'Área personal: las tareas que tienes que entregar antes de que se venzan.',
+        'Mis cursos: todas las materias que tienes matriculadas en SAIA; entra a cada una para ver su información, la cartelera informativa y quién la dicta.',
+        'Tareas: revisa la fecha en que abren y en que cierran, y sube tu actividad dentro de ese plazo.',
+        'Asesorías y clases en línea: se hacen por videollamada en Microsoft Teams, con el enlace que publica el docente en la materia.',
+      ]),
     ],
   },
   // ----- Artículo: trámites y justificativos -----
