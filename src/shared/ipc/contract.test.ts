@@ -74,6 +74,24 @@ describe('IPC contract', () => {
     });
   });
 
+  describe('media:upload', () => {
+    const { request, response } = ipcContract['media:upload'];
+
+    it('accepts only images or videos', () => {
+      expect(request.safeParse({ kind: 'image' }).success).toBe(true);
+      expect(request.safeParse({ kind: 'video' }).success).toBe(true);
+      expect(request.safeParse({ kind: 'pdf' }).success).toBe(false);
+    });
+
+    it('returns the uploaded file', () => {
+      const file = { hash: 'c'.repeat(64), ext: 'jpg', name: 'foto.jpg', size: 2000 };
+      expect(response.safeParse({ status: 'uploaded', file }).success).toBe(true);
+      expect(
+        response.safeParse({ status: 'uploaded', file: { ...file, ext: 'exe' } }).success,
+      ).toBe(false);
+    });
+  });
+
   it('editor:unlock requires a passphrase', () => {
     const { request } = ipcContract['editor:unlock'];
     expect(request.safeParse({ passphrase: 'abc' }).success).toBe(true);

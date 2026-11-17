@@ -9,7 +9,8 @@
  * Al iniciar:
  * 1. Se asegura de que solo haya una copia de la app abierta.
  * 2. Aplica las reglas de seguridad a cada ventana (`./security.ts`).
- * 3. Registra los canales de comunicación con la interfaz (`./ipc/register.ts`).
+ * 3. Registra los canales de comunicación con la interfaz (`./ipc/register.ts`)
+ *    y el protocolo local de imágenes y videos subidos (`./media-protocol.ts`).
  * 4. Abre la ventana principal (`./window.ts`).
  */
 import { join } from 'node:path';
@@ -17,6 +18,7 @@ import { join } from 'node:path';
 import { app, BrowserWindow } from 'electron';
 
 import { registerIpcHandlers } from './ipc/register';
+import { handleMediaProtocol, registerMediaScheme } from './media-protocol';
 import { hardenWebContents } from './security';
 import { createMainWindow } from './window';
 
@@ -29,6 +31,10 @@ const APP_USER_MODEL_ID = 'com.desktopguide.app';
 // visible, las computadoras que ya la tienen instalada no pierdan sus datos.
 // Debe definirse antes de cualquier otra cosa (incluido el bloqueo de abajo).
 app.setPath('userData', join(app.getPath('appData'), 'Desktop Guide'));
+
+// Protocolo local para mostrar las imágenes y videos subidos (`./media-protocol.ts`).
+// Tiene que declararse antes de que la app esté lista.
+registerMediaScheme();
 
 // Solo puede haber una copia de la app abierta a la vez. Si ya hay una, esta
 // segunda copia se cierra.
@@ -55,7 +61,7 @@ if (!app.requestSingleInstanceLock()) {
     // Necesario en Windows para las notificaciones y el agrupado en la barra de tareas.
     app.setAppUserModelId(APP_USER_MODEL_ID);
 
-    registerIpcHandlers();
+    handleMediaProtocol(registerIpcHandlers());
     createMainWindow();
 
     app.on('activate', () => {

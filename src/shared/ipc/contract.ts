@@ -11,6 +11,7 @@
  */
 import { z } from 'zod';
 
+import { uploadedImageSchema, uploadedVideoSchema } from '../content/media';
 import { contentStateSchema, manualContentSchema } from '../content/schema';
 import type { IpcChannel } from './channels';
 
@@ -59,6 +60,7 @@ export const ipcContract = {
     response: z.discriminatedUnion('status', [
       z.object({ status: z.literal('published'), state: contentStateSchema }),
       z.object({ status: z.literal('locked') }),
+      invalidResult,
     ]),
   },
   'content:import': {
@@ -104,6 +106,18 @@ export const ipcContract = {
     }),
     response: z.discriminatedUnion('status', [
       z.object({ status: z.literal('created'), state: contentStateSchema }),
+      cancelledResult,
+      invalidResult,
+    ]),
+  },
+  // Subir una imagen o un video desde el editor (solo con la edición desbloqueada).
+  'media:upload': {
+    request: z.object({ kind: z.enum(['image', 'video']) }),
+    response: z.discriminatedUnion('status', [
+      z.object({
+        status: z.literal('uploaded'),
+        file: z.union([uploadedImageSchema, uploadedVideoSchema]),
+      }),
       cancelledResult,
       invalidResult,
     ]),

@@ -23,6 +23,7 @@ export const IPC_CHANNELS = [
   'editor:unlock',
   'editor:lock',
   'editor:create-key',
+  'media:upload',
 ] as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[number];

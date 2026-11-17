@@ -20,7 +20,8 @@
 import type { KeyObject } from 'node:crypto';
 
 import { type EditorCertificate, MAX_PACKAGE_BYTES } from '@shared/content/package';
-import type { ContentState, ManualContent } from '@shared/content/schema';
+import { mediaFileName, type UploadedFile } from '@shared/content/media';
+import { collectUploads, type ContentState, type ManualContent } from '@shared/content/schema';
 
 import {
   createEditorKeyFile,
@@ -38,6 +39,13 @@ export interface TextStorage {
   remove: () => Promise<void>;
 }
 
+/** Lo que el servicio necesita del almacén de archivos subidos (`./media-store.ts`). */
+export interface MediaLibrary {
+  has: (file: Pick<UploadedFile, 'hash' | 'ext'>) => Promise<boolean>;
+  /** Borra los archivos cuyo nombre no esté en `keep`. */
+  prune: (keep: ReadonlySet<string>) => Promise<void>;
+}
+
 export interface ContentServiceOptions {
   /** Dónde se guarda el paquete de contenido firmado que está activo. */
   packageStorage: TextStorage;
@@ -47,12 +55,15 @@ export interface ContentServiceOptions {
   bundled: ManualContent;
   /** Llave maestra pública incluida en la app; si es `null`, no se puede editar. */
   masterPublicKey: KeyObject | null;
+  /** Almacén de imágenes y videos subidos (opcional en los tests). */
+  media?: MediaLibrary;
   now?: () => Date;
 }
 
 // Posibles resultados de cada operación (se envían a la interfaz).
 export type UnlockResult = { status: 'unlocked' } | { status: 'invalid'; message: string };
-export type PublishResult = { status: 'published' } | { status: 'locked' };
+export type PublishResult =
+  { status: 'published' } | { status: 'locked' } | { status: 'invalid'; message: string };
 export type ImportResult =
   { status: 'imported' } | { status: 'cancelled' } | { status: 'invalid'; message: string };
 
@@ -86,6 +97,7 @@ export class ContentService {
   private readonly trustStorage: TextStorage;
   private readonly bundled: ManualContent;
   private readonly masterPublicKey: KeyObject | null;
+  private readonly media: MediaLibrary | null;
   private readonly now: () => Date;
 
   constructor(options: ContentServiceOptions) {
@@ -93,7 +105,20 @@ export class ContentService {
     this.trustStorage = options.trustStorage;
     this.bundled = options.bundled;
     this.masterPublicKey = options.masterPublicKey;
+    this.media = options.media ?? null;
     this.now = options.now ?? (() => new Date());
+  }
+
+  /** Indica si el modo edición está activo (se exige para subir archivos). */
+  isUnlocked(): boolean {
+    return this.editor !== null;
+  }
+
+  // Deja en el almacén solo los archivos que usa `content` (o ninguno).
+  private async pruneMedia(content: ManualContent | null): Promise<void> {
+    if (!this.media) return;
+    const keep = new Set(content ? [...collectUploads(content).values()].map(mediaFileName) : []);
+    await this.media.prune(keep);
   }
 
   /** Fecha de creación de la llave de edición más nueva que ha visto este computador. */
@@ -186,21 +211,32 @@ export class ContentService {
       this.editor = null;
       return { status: 'locked' };
     }
+    // Cada archivo subido que usa el contenido tiene que estar en el almacén.
+    if (this.media) {
+      for (const file of collectUploads(content).values()) {
+        if (!(await this.media.has(file))) {
+          return { status: 'invalid', message: `Falta el archivo subido «${file.name}».` };
+        }
+      }
+    }
     const signed = createPackage(content, this.editor.key, this.editor.certificate, this.now());
     await this.packageStorage.write(JSON.stringify(signed, null, 2));
+    await this.pruneMedia(content);
     return { status: 'published' };
   }
 
-  /** Acepta un paquete de contenido traído de otro computador, si su firma es válida. */
   /**
    * Importa un paquete publicado en otra computadora. Si es más antiguo que el
    * contenido que ya se muestra aquí, pregunta con `confirmOlder` antes de
    * reemplazarlo (sin esa función, no lo reemplaza), para que nadie vuelva a
-   * una versión vieja por error.
+   * una versión vieja por error. `prepareMedia` copia al almacén los archivos
+   * subidos que usa el contenido (solo se llama si la firma es válida) y
+   * devuelve un mensaje si falta o se alteró alguno.
    */
   async importPackage(
     raw: string,
     confirmOlder?: (info: OlderPackageInfo) => Promise<boolean>,
+    prepareMedia?: (files: UploadedFile[]) => Promise<string | null>,
   ): Promise<ImportResult> {
     if (!this.masterPublicKey) return { status: 'invalid', message: NOT_CONFIGURED };
     if (raw.length > MAX_PACKAGE_BYTES) {
@@ -225,8 +261,17 @@ export class ContentService {
       if (!accepted) return { status: 'cancelled' };
     }
 
+    const files = [...collectUploads(opened.content).values()];
+    if (files.length > 0) {
+      const problem = prepareMedia
+        ? await prepareMedia(files)
+        : 'Este paquete trae imágenes o videos que no se pudieron leer.';
+      if (problem) return { status: 'invalid', message: problem };
+    }
+
     await this.packageStorage.write(raw);
     await this.rememberKey(opened.certificate.issuedAt);
+    await this.pruneMedia(opened.content);
     return { status: 'imported' };
   }
 
@@ -273,5 +318,12 @@ export class ContentService {
   /** Vuelve al contenido original. Las llaves reemplazadas siguen reemplazadas. */
   async reset(): Promise<void> {
     await this.packageStorage.remove();
+    await this.pruneMedia(null);
+  }
+
+  /** Archivos subidos que usa el contenido que se muestra ahora (para exportarlos). */
+  async activeUploads(): Promise<UploadedFile[]> {
+    const state = await this.getState();
+    return state.source === 'signed-package' ? [...collectUploads(state.content).values()] : [];
   }
 }

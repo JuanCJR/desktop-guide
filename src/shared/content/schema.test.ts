@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_CONTENT } from './default-content';
 import { IMAGE_IDS } from './images';
-import { ARTICLE_KEYS, type ManualContent, manualContentSchema } from './schema';
+import { MEDIA_LIMITS } from './media';
+import { ARTICLE_KEYS, collectUploads, type ManualContent, manualContentSchema } from './schema';
 
 const clone = (): ManualContent => structuredClone(DEFAULT_CONTENT);
 
@@ -160,10 +161,95 @@ describe('manualContentSchema', () => {
       expect(manualContentSchema.safeParse(tooMany).success).toBe(false);
     });
 
+    describe('uploaded files', () => {
+      const hash = (n: number) => n.toString(16).padStart(64, '0');
+      const image = (n: number, size = 300_000) => ({
+        file: { hash: hash(n), ext: 'jpg' as const, name: `foto-${String(n)}.jpg`, size },
+        caption: '',
+      });
+
+      it('accept an uploaded image and an uploaded video', () => {
+        const content = clone();
+        const [section] = content.rules.sections;
+        if (section) {
+          section.images = [image(1)];
+          section.video = { hash: hash(2), ext: 'mp4', name: 'clase.mp4', size: 40_000_000 };
+        }
+        const parsed = manualContentSchema.safeParse(content);
+        expect(parsed.success).toBe(true);
+        if (parsed.success) expect(collectUploads(parsed.data).size).toBe(2);
+      });
+
+      it.each([
+        { hash: 'abc', ext: 'jpg', name: 'x.jpg', size: 10 },
+        { hash: hash(1), ext: 'png', name: 'x.png', size: 10 },
+        { hash: hash(1), ext: 'jpg', name: 'x.jpg', size: 0 },
+      ])('reject an invalid uploaded image %o', (file) => {
+        const content = clone() as unknown as { rules: { sections: { images: unknown[] }[] } };
+        const [first] = content.rules.sections;
+        if (first) first.images = [{ file, caption: '' }];
+        expect(manualContentSchema.safeParse(content).success).toBe(false);
+      });
+
+      it('reject a video over the size limit', () => {
+        const content = clone();
+        const [section] = content.rules.sections;
+        if (section) {
+          section.video = {
+            hash: hash(3),
+            ext: 'mp4',
+            name: 'grande.mp4',
+            size: MEDIA_LIMITS.videoBytes + 1,
+          };
+        }
+        expect(manualContentSchema.safeParse(content).success).toBe(false);
+      });
+
+      it('reject uploads over the total size and file count limits', () => {
+        const total = clone();
+        const big = MEDIA_LIMITS.videoBytes;
+        const count = Math.ceil(MEDIA_LIMITS.totalBytes / big) + 1;
+        total.rules.sections.forEach((section, index) => {
+          section.video = null;
+          if (index === 0) section.images = [];
+        });
+        // Un video grande distinto en cada sección de varias páginas, hasta pasar el total.
+        let n = 10;
+        for (const key of ARTICLE_KEYS) {
+          for (const section of total[key].sections) {
+            if (n - 10 >= count) break;
+            section.video = { hash: hash(n), ext: 'mp4', name: 'v.mp4', size: big };
+            n += 1;
+          }
+        }
+        expect(manualContentSchema.safeParse(total).success).toBe(false);
+
+        const many = clone();
+        const sections = ARTICLE_KEYS.flatMap((key) => many[key].sections);
+        let k = 100;
+        for (const section of sections) {
+          section.images = Array.from({ length: 6 }, () => image(k++, 1000));
+        }
+        expect(k - 100).toBeGreaterThan(MEDIA_LIMITS.maxFiles);
+        expect(manualContentSchema.safeParse(many).success).toBe(false);
+      });
+
+      it('count a file used twice only once', () => {
+        const content = clone();
+        const [a, b] = content.rules.sections;
+        if (a && b) {
+          a.images = [image(7)];
+          b.images = [image(7)];
+        }
+        const parsed = manualContentSchema.parse(content);
+        expect(collectUploads(parsed).size).toBe(1);
+      });
+    });
+
     it('bundle every reference image exactly once', () => {
       const used = ARTICLE_KEYS.flatMap((key) =>
         DEFAULT_CONTENT[key].sections.flatMap((section) =>
-          (section.images ?? []).map((image) => image.id),
+          (section.images ?? []).flatMap((image) => ('id' in image ? [image.id] : [])),
         ),
       );
       expect([...used].sort()).toEqual([...IMAGE_IDS].sort());

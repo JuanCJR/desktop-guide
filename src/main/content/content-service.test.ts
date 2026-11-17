@@ -330,3 +330,114 @@ describe('ContentService', () => {
     });
   });
 });
+
+describe('uploaded media', () => {
+  const editor = createEditorKey(master.privateKey, master.publicKey, '2026-11-01T00:00:00.000Z');
+  const video = {
+    hash: 'a'.repeat(64),
+    ext: 'mp4' as const,
+    name: 'clase.mp4',
+    size: 1000,
+  };
+  const withVideo: ManualContent = structuredClone(DEFAULT_CONTENT);
+  const [firstSection] = withVideo.rules.sections;
+  if (firstSection) firstSection.video = video;
+
+  function library(files: string[] = []) {
+    const lib = {
+      files: new Set(files),
+      pruned: [] as string[][],
+      has: (file: { hash: string; ext: string }) =>
+        Promise.resolve(lib.files.has(`${file.hash}.${file.ext}`)),
+      prune: (keep: ReadonlySet<string>) => {
+        lib.pruned.push([...keep]);
+        lib.files = new Set([...lib.files].filter((name) => keep.has(name)));
+        return Promise.resolve();
+      },
+    };
+    return lib;
+  }
+
+  function serviceWith(media: ReturnType<typeof library>, packageStorage = memoryStorage()) {
+    return new ContentService({
+      packageStorage,
+      trustStorage: memoryStorage(),
+      bundled: DEFAULT_CONTENT,
+      masterPublicKey: master.publicKey,
+      media,
+      now: () => new Date(NOW),
+    });
+  }
+
+  it('refuses to publish content whose uploaded files are missing', async () => {
+    const service = serviceWith(library());
+    await service.unlock(editor.fileText, editor.passphrase);
+    const result = await service.publish(withVideo);
+    expect(result).toEqual({ status: 'invalid', message: 'Falta el archivo subido «clase.mp4».' });
+  });
+
+  it('publishes, keeps the files in use and removes the rest', async () => {
+    const media = library([`${video.hash}.mp4`, `${'b'.repeat(64)}.jpg`]);
+    const service = serviceWith(media);
+    await service.unlock(editor.fileText, editor.passphrase);
+    expect(await service.publish(withVideo)).toEqual({ status: 'published' });
+    expect([...media.files]).toEqual([`${video.hash}.mp4`]);
+    expect(await service.activeUploads()).toEqual([video]);
+
+    await service.reset();
+    expect([...media.files]).toEqual([]);
+  });
+
+  it('copies uploaded files only after the signature is valid', async () => {
+    const source = serviceWith(library([`${video.hash}.mp4`]));
+    await source.unlock(editor.fileText, editor.passphrase);
+    await source.publish(withVideo);
+    const raw = (await source.exportPackage()) ?? '';
+
+    const media = library();
+    const target = serviceWith(media);
+    const asked: string[][] = [];
+    const prepare = (files: { name: string }[]) => {
+      asked.push(files.map((f) => f.name));
+      media.files.add(`${video.hash}.mp4`);
+      return Promise.resolve(null);
+    };
+    expect(await target.importPackage(raw, undefined, prepare)).toEqual({ status: 'imported' });
+    expect(asked).toEqual([['clase.mp4']]);
+
+    // Un paquete alterado no llega a copiar archivos.
+    const tampered = raw.replace('clase.mp4', 'otro.mp4');
+    const other = serviceWith(library());
+    let called = false;
+    const result = await other.importPackage(tampered, undefined, () => {
+      called = true;
+      return Promise.resolve(null);
+    });
+    expect(result.status).toBe('invalid');
+    expect(called).toBe(false);
+  });
+
+  it('rejects the import when an uploaded file cannot be copied', async () => {
+    const source = serviceWith(library([`${video.hash}.mp4`]));
+    await source.unlock(editor.fileText, editor.passphrase);
+    await source.publish(withVideo);
+    const raw = (await source.exportPackage()) ?? '';
+    const storage = memoryStorage();
+    const target = serviceWith(library(), storage);
+    const result = await target.importPackage(raw, undefined, () =>
+      Promise.resolve('El archivo «clase.mp4» del paquete está dañado o fue modificado.'),
+    );
+    expect(result).toEqual({
+      status: 'invalid',
+      message: 'El archivo «clase.mp4» del paquete está dañado o fue modificado.',
+    });
+    expect(storage.data).toBeNull();
+  });
+
+  it('only allows uploads while editing is unlocked', async () => {
+    const service = serviceWith(library());
+    expect(service.isUnlocked()).toBe(false);
+    await service.unlock(editor.fileText, editor.passphrase);
+    expect(service.isUnlocked()).toBe(true);
+  });
+});

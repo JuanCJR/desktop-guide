@@ -4,12 +4,12 @@
  * La usan las páginas de texto (`@/features/article/article-page.tsx`). Cada
  * imagen se ve en miniatura con su pie de foto; al hacer clic se abre en grande
  * en una ventana que se cierra con Esc, con la X o haciendo clic en la imagen.
- * Las imágenes y sus nombres están en `@/lib/images.ts`.
+ * Las imágenes pueden ser de la app o subidas desde el editor (`@/lib/media.ts`).
  */
 import { X, ZoomIn } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-import { IMAGES } from '@/lib/images';
+import { resolveImage } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import type { SectionImage } from '@shared/content/schema';
 
@@ -26,13 +26,13 @@ export function ImageGallery({ images }: { images: readonly SectionImage[] }) {
   }, [open]);
 
   if (images.length === 0) return null;
-  const describe = (image: SectionImage) => image.caption || IMAGES[image.id].title;
+  const describe = (image: SectionImage) => image.caption || resolveImage(image).title;
 
   return (
     <>
       <div className={cn('grid gap-4', images.length > 1 && 'sm:grid-cols-2')}>
         {images.map((image, index) => (
-          <figure key={`${image.id}-${String(index)}`} className="space-y-2">
+          <figure key={`${resolveImage(image).src}-${String(index)}`} className="space-y-2">
             <button
               type="button"
               className="group relative block w-full overflow-hidden rounded-lg border bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
@@ -42,7 +42,7 @@ export function ImageGallery({ images }: { images: readonly SectionImage[] }) {
               aria-label={`Ver en grande: ${describe(image)}`}
             >
               <img
-                src={IMAGES[image.id].src}
+                src={resolveImage(image).src}
                 alt={describe(image)}
                 loading="lazy"
                 className="w-full transition-transform group-hover:scale-[1.02]"
@@ -82,7 +82,7 @@ export function ImageGallery({ images }: { images: readonly SectionImage[] }) {
               </button>
             </div>
             <img
-              src={IMAGES[open.id].src}
+              src={resolveImage(open).src}
               alt={describe(open)}
               className="max-h-[80vh] w-auto cursor-zoom-out"
               onClick={() => {
