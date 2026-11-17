@@ -13,7 +13,13 @@
  * Para corregir un texto del contenido original, se edita aquí y se genera
  * un instalador nuevo.
  */
-import type { ArticleSection, ManualContent, NoticeTone, SectionStyle } from './schema';
+import type {
+  ArticleSection,
+  ManualContent,
+  NoticeTone,
+  SectionImage,
+  SectionStyle,
+} from './schema';
 import type { VideoId } from './videos';
 
 /** Arma una sección de artículo con los campos opcionales vacíos. */
@@ -22,7 +28,13 @@ function section(
   title: string,
   style: SectionStyle,
   items: string[],
-  extra: { body?: string; notice?: string; noticeTone?: NoticeTone; video?: VideoId } = {},
+  extra: {
+    body?: string;
+    notice?: string;
+    noticeTone?: NoticeTone;
+    video?: VideoId;
+    images?: SectionImage[];
+  } = {},
 ): ArticleSection {
   return {
     id,
@@ -33,6 +45,7 @@ function section(
     notice: '',
     noticeTone: 'info',
     video: null,
+    images: [],
     ...extra,
   };
 }
@@ -305,15 +318,40 @@ export const DEFAULT_CONTENT: ManualContent = {
           notice:
             'Si no puedes entrar o no ves tus materias, acude a la Coordinación de SAIA y Tecnología Educativa, en el área de laboratorios de informática.',
           video: 'saia-student',
+          images: [
+            {
+              id: 'saia-login-microsoft',
+              caption: 'Para entrar, pulsa «Microsoft 365 (Haga Click aquí)».',
+            },
+          ],
         },
       ),
-      section('using', 'Cómo usar SAIA', 'bulleted', [
-        'Página principal: notificaciones de contenido nuevo en tus materias y de tareas por entregar.',
-        'Área personal: las tareas que tienes que entregar antes de que se venzan.',
-        'Mis cursos: todas las materias que tienes matriculadas en SAIA; entra a cada una para ver su información, la cartelera informativa y quién la dicta.',
-        'Tareas: revisa la fecha en que abren y en que cierran, y sube tu actividad dentro de ese plazo.',
-        'Asesorías y clases en línea: se hacen por videollamada en Microsoft Teams, con el enlace que publica el docente en la materia.',
-      ]),
+      section(
+        'using',
+        'Cómo usar SAIA',
+        'bulleted',
+        [
+          'Página principal: notificaciones de contenido nuevo en tus materias y de tareas por entregar.',
+          'Área personal: las tareas que tienes que entregar antes de que se venzan.',
+          'Mis cursos: todas las materias que tienes matriculadas en SAIA; entra a cada una para ver su información, la cartelera informativa y quién la dicta.',
+          'Tareas: revisa la fecha en que abren y en que cierran, y sube tu actividad dentro de ese plazo.',
+          'Asesorías y clases en línea: se hacen por videollamada en Microsoft Teams, con el enlace que publica el docente en la materia.',
+        ],
+        {
+          images: [
+            {
+              id: 'saia-personal-area',
+              caption: 'Área personal: el calendario marca las tareas que están por vencer.',
+            },
+            { id: 'saia-my-courses', caption: 'Mis cursos: tus materias matriculadas en SAIA.' },
+            {
+              id: 'saia-course-tasks',
+              caption:
+                'Dentro de la materia: cada tarea con su fecha de apertura y cierre, y los enlaces de las asesorías por Teams.',
+            },
+          ],
+        },
+      ),
     ],
   },
   // ----- Artículo: trámites y justificativos -----
@@ -530,6 +568,18 @@ export const DEFAULT_CONTENT: ManualContent = {
             'Está prohibido subir calificaciones al Aula DACE sin la validación previa: es una falta reglamentaria.',
           noticeTone: 'warning',
           video: 'dace-grades',
+          images: [
+            {
+              id: 'dace-download-reports',
+              caption:
+                'Aula DACE: en cada corte, «Descarga de Actas de Notas» y la carpeta de tu extensión.',
+            },
+            {
+              id: 'dace-submit-reports',
+              caption:
+                'En «Actividades» se entregan las actas ya validadas: una tarea para docentes locales y otra para foráneos.',
+            },
+          ],
         },
       ),
       section(
@@ -549,6 +599,28 @@ export const DEFAULT_CONTENT: ManualContent = {
           notice:
             'Los dos botones guardan la tarea. Lo que decide si los estudiantes la ven es que esté visible: si en el curso aparece «Oculto para estudiantes», abre su menú (⋮) y elige «Mostrar».',
           video: 'saia-assignment',
+          images: [
+            {
+              id: 'saia-edit-mode',
+              caption: 'Paso 1: «Modo de edición» activado (arriba a la derecha).',
+            },
+            {
+              id: 'saia-add-activity',
+              caption: 'Pasos 2 y 3: la ventana «Añadir una actividad o recurso».',
+            },
+            {
+              id: 'saia-assignment-availability',
+              caption: 'Paso 5: fechas de entrega en «Disponibilidad».',
+            },
+            {
+              id: 'saia-submission-types',
+              caption: 'Paso 6: «Tipos de entrega», tamaño máximo y tipos de archivo.',
+            },
+            {
+              id: 'saia-save-buttons',
+              caption: 'Paso 7: cualquiera de los dos botones guarda la tarea.',
+            },
+          ],
         },
       ),
       section('thesis', 'Trabajos de grado', 'bulleted', [
@@ -661,7 +733,15 @@ export const DEFAULT_CONTENT: ManualContent = {
           'Sube al aula virtual de cada materia una (1) clase pregrabada y mantén como mínimo una (1) reunión por Teams por semana con tus alumnos.',
           'Usa el chat interactivo, el foro de dudas y preguntas y la cartelera informativa de SAIA para mantener el contacto con el alumnado.',
         ],
-        { video: 'saia-classroom' },
+        {
+          video: 'saia-classroom',
+          images: [
+            {
+              id: 'saia-grading-summary',
+              caption: 'En cada evaluación, «Calificar» abre las entregas pendientes por corregir.',
+            },
+          ],
+        },
       ),
     ],
   },

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_CONTENT } from './default-content';
-import { type ManualContent, manualContentSchema } from './schema';
+import { IMAGE_IDS } from './images';
+import { ARTICLE_KEYS, type ManualContent, manualContentSchema } from './schema';
 
 const clone = (): ManualContent => structuredClone(DEFAULT_CONTENT);
 
@@ -132,6 +133,40 @@ describe('manualContentSchema', () => {
       const [first] = content.rules.sections;
       if (first) first.video = 'other-video';
       expect(manualContentSchema.safeParse(content).success).toBe(false);
+    });
+
+    it('accept sections without images (packages from older versions)', () => {
+      const content = clone() as unknown as { rules: { sections: Record<string, unknown>[] } };
+      for (const section of content.rules.sections) delete section['images'];
+      expect(manualContentSchema.safeParse(content).success).toBe(true);
+    });
+
+    it('reject an unknown image and more than six images per section', () => {
+      const unknown = clone() as unknown as {
+        rules: { sections: { images: { id: string; caption: string }[] }[] };
+      };
+      const [first] = unknown.rules.sections;
+      if (first) first.images = [{ id: 'other-image', caption: '' }];
+      expect(manualContentSchema.safeParse(unknown).success).toBe(false);
+
+      const tooMany = clone();
+      const [section] = tooMany.rules.sections;
+      if (section) {
+        section.images = Array.from({ length: 7 }, () => ({
+          id: 'saia-edit-mode' as const,
+          caption: '',
+        }));
+      }
+      expect(manualContentSchema.safeParse(tooMany).success).toBe(false);
+    });
+
+    it('bundle every reference image exactly once', () => {
+      const used = ARTICLE_KEYS.flatMap((key) =>
+        DEFAULT_CONTENT[key].sections.flatMap((section) =>
+          (section.images ?? []).map((image) => image.id),
+        ),
+      );
+      expect([...used].sort()).toEqual([...IMAGE_IDS].sort());
     });
 
     it('bundle the student SAIA video in the first-login page', () => {
