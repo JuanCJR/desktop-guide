@@ -20,7 +20,8 @@ export interface ContentContextValue {
   publish: (content: ManualContent) => Promise<string[]>;
   importPackage: () => Promise<ActionResult | null>;
   exportPackage: () => Promise<ActionResult | null>;
-  reset: () => Promise<void>;
+  /** Vuelve al contenido original (pide confirmación); `null` si se canceló. */
+  reset: () => Promise<ActionResult | null>;
   unlock: (passphrase: string) => Promise<ActionResult | null>;
   lock: () => Promise<void>;
   /** Crea una llave de edición nueva con la llave maestra y reemplaza las anteriores. */

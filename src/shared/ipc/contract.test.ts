@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { DEFAULT_CONTENT } from '../content/default-content';
+
 import { IPC_CHANNELS, isIpcChannel } from './channels';
 import { ipcContract } from './contract';
 
@@ -44,6 +46,31 @@ describe('IPC contract', () => {
       { masterPassphrase: 'x', newPassphrase: 'short' },
     ])('rejects %o', (payload) => {
       expect(request.safeParse(payload).success).toBe(false);
+    });
+  });
+
+  describe('content:reset', () => {
+    const { response } = ipcContract['content:reset'];
+    const state = {
+      content: DEFAULT_CONTENT,
+      source: 'bundled',
+      publishedAt: null,
+      warning: null,
+      signingConfigured: true,
+      editorUnlocked: false,
+      activeKeyIssuedAt: null,
+    };
+
+    it('returns the new state when the reset was confirmed', () => {
+      expect(response.safeParse({ status: 'reset', state }).success).toBe(true);
+    });
+
+    it('can be cancelled from the confirmation dialog', () => {
+      expect(response.parse({ status: 'cancelled' })).toEqual({ status: 'cancelled' });
+    });
+
+    it.each([state, { status: 'reset' }, { status: 'other' }])('rejects %o', (payload) => {
+      expect(response.safeParse(payload).success).toBe(false);
     });
   });
 

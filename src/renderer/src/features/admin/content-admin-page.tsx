@@ -142,16 +142,8 @@ export function ContentAdminPage() {
               Exportar para otra computadora
             </Button>
             {state.source === 'signed-package' && (
-              <Button
-                variant="ghost"
-                disabled={busy}
-                onClick={() =>
-                  void run(async () => {
-                    await reset();
-                    return { ok: true, message: 'Se restauró el contenido original.' };
-                  })
-                }
-              >
+              // Antes de restaurar se pide confirmación con un aviso de Windows.
+              <Button variant="ghost" disabled={busy} onClick={() => void run(reset)}>
                 <RotateCcw />
                 Restaurar original
               </Button>

@@ -73,9 +73,13 @@ export const ipcContract = {
     request: z.undefined(),
     response: z.object({ status: z.enum(['saved', 'cancelled', 'nothing-to-export']) }),
   },
+  // Pide confirmación antes de volver al contenido original; puede cancelarse.
   'content:reset': {
     request: z.undefined(),
-    response: contentStateSchema,
+    response: z.discriminatedUnion('status', [
+      z.object({ status: z.literal('reset'), state: contentStateSchema }),
+      cancelledResult,
+    ]),
   },
   // Modo edición: desbloquear con una llave, bloquear y crear una llave nueva.
   'editor:unlock': {
