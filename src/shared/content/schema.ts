@@ -20,6 +20,13 @@ import { z } from 'zod';
 
 import { LINKABLE_PAGE_IDS } from './pages';
 import { IMAGE_IDS, MAX_SECTION_IMAGES } from './images';
+import {
+  formatMegabytes,
+  MEDIA_LIMITS,
+  type UploadedFile,
+  uploadedImageSchema,
+  uploadedVideoSchema,
+} from './media';
 import { VIDEO_IDS } from './videos';
 
 // ---------------------------------------------------------------------------
@@ -181,11 +188,14 @@ export type SectionStyle = z.infer<typeof sectionStyleSchema>;
 export const noticeToneSchema = z.enum(['warning', 'info']);
 export type NoticeTone = z.infer<typeof noticeToneSchema>;
 
-/** Imagen de referencia de una sección, con su pie de foto (puede quedar vacío). */
-export const sectionImageSchema = z.object({
-  id: z.enum(IMAGE_IDS),
-  caption: optionalText(200),
-});
+/**
+ * Imagen de una sección, con su pie de foto (puede quedar vacío): una de las
+ * que trae la app (`id`) o una subida desde el editor (`file`).
+ */
+export const sectionImageSchema = z.union([
+  z.object({ id: z.enum(IMAGE_IDS), caption: optionalText(200) }),
+  z.object({ file: uploadedImageSchema, caption: optionalText(200) }),
+]);
 export type SectionImage = z.infer<typeof sectionImageSchema>;
 
 export const articleSectionSchema = z.object({
@@ -203,7 +213,7 @@ export const articleSectionSchema = z.object({
    * Opcional: el contenido publicado con versiones anteriores no lo tenía, y en
    * ese caso la sección queda sin video.
    */
-  video: z.enum(VIDEO_IDS).nullish(),
+  video: z.union([z.enum(VIDEO_IDS), uploadedVideoSchema]).nullish(),
   /**
    * Imágenes de referencia que se muestran debajo de los elementos. Opcional
    * por la misma razón que `video`: el contenido anterior no las tenía.
@@ -397,7 +407,44 @@ export const manualContentSchema = z
       value.directory.offices.map((office) => office.id),
       'el directorio',
     );
+    // Límites de los archivos subidos (contando una sola vez los repetidos).
+    const uploads = collectUploads(value);
+    const total = [...uploads.values()].reduce((sum, file) => sum + file.size, 0);
+    if (uploads.size > MEDIA_LIMITS.maxFiles) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Hay ${String(uploads.size)} archivos subidos; el máximo es ${String(MEDIA_LIMITS.maxFiles)}.`,
+      });
+    }
+    if (total > MEDIA_LIMITS.totalBytes) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Los archivos subidos suman ${formatMegabytes(total)}; el máximo es ${formatMegabytes(MEDIA_LIMITS.totalBytes)}.`,
+      });
+    }
   });
+
+/**
+ * Todos los archivos subidos que usa el contenido, sin repetir (por huella).
+ * Lo usan la validación de arriba, el proceso principal (para guardar,
+ * exportar e importar los archivos) y el editor (para mostrar cuánto se usa).
+ */
+export function collectUploads(
+  content: Record<ArticleKey, { sections: readonly Pick<ArticleSection, 'images' | 'video'>[] }>,
+): Map<string, UploadedFile> {
+  const files = new Map<string, UploadedFile>();
+  for (const key of ARTICLE_KEYS) {
+    for (const section of content[key].sections) {
+      for (const image of section.images ?? []) {
+        if ('file' in image) files.set(image.file.hash, image.file);
+      }
+      if (section.video && typeof section.video === 'object') {
+        files.set(section.video.hash, section.video);
+      }
+    }
+  }
+  return files;
+}
 
 export type ManualContent = z.infer<typeof manualContentSchema>;
 

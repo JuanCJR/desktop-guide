@@ -13,11 +13,14 @@
     <!--
       Política de seguridad del contenido (CSP): solo permite cargar código,
       estilos, imágenes y fuentes de la propia app, nunca de internet. No se
-      debe relajar sin una buena razón (ver CLAUDE.md).
+      debe relajar sin una buena razón (ver CLAUDE.md). `psm-media:` es el
+      protocolo local de las imágenes y videos subidos desde el editor
+      (src/main/media-protocol.ts): sirve archivos de esta computadora, no de
+      internet, y solo para imágenes y videos.
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: psm-media:; media-src 'self' psm-media:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'"
     />
     <title>Manual de Inducción · IUPSM</title>
   </head>

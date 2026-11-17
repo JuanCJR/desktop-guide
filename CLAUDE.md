@@ -58,10 +58,13 @@ src/
 │   │   ├── content-service.ts # Qué contenido se muestra; edición, llaves y reemplazo
 │   │   ├── signing.ts         # Ed25519: certificados, llaves de edición y paquetes .psm
 │   │   ├── file-storage.ts    # Paquete activo en userData (escritura atómica)
+│   │   ├── media-store.ts     # Imágenes y videos subidos (por huella SHA-256)
+│   │   ├── package-file.ts    # Archivo .psm en disco (con archivos subidos adentro)
 │   │   ├── test-keys.ts       # Helpers de tests (llaves de prueba)
 │   │   └── public-key.ts      # Llave pública MAESTRA (generada con content:master-key)
 │   ├── window.ts            # Creación de BrowserWindow (webPreferences seguras)
 │   ├── security.ts          # Endurecimiento de WebContents, URLs confiables
+│   ├── media-protocol.ts    # Protocolo local psm-media: para los archivos subidos
 │   └── ipc/
 │       ├── create-handler.ts  # Wrapper: valida sender, request y response; serializa errores
 │       ├── register.ts        # Mapa canal → handler (obligatorio para todos los canales)
@@ -199,6 +202,17 @@ Reglas:
   (`IMAGE_IDS`) y su nombre y archivo en `src/renderer/src/lib/images.ts`. Una
   sección de artículo las lista en su campo opcional `images` (id + pie de
   foto, máximo `MAX_SECTION_IMAGES`); las muestra `components/image-gallery.tsx`.
+- **Archivos subidos** (imágenes y videos propios): límites y formato en
+  `src/shared/content/media.ts` (`MEDIA_LIMITS`). Las secciones los guardan
+  en `images[].file` o `video` como `{ hash, ext, name, size }` (SHA-256), así
+  que la firma del contenido los protege. Se suben con el canal `media:upload`
+  (solo con la edición desbloqueada; `main/ipc/handlers/media.ts`), se guardan
+  en `userData/media` (`main/content/media-store.ts`) y la interfaz los pide
+  con el protocolo local `psm-media:` (`main/media-protocol.ts`, permitido en la
+  CSP solo para `img-src` y `media-src`). Al exportar, `main/content/package-file.ts`
+  escribe el `.psm` con los archivos adentro (cabecera `IUPSM-PSM3`); sin
+  archivos, escribe el JSON de siempre. Publicar, importar y restaurar borran
+  los archivos que ya no usa ningún contenido.
 - Las preferencias locales (casillas marcadas) se guardan en `localStorage`
   con `usePersistedSet`; nunca guardes contenido ahí.
 

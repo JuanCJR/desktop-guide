@@ -40,6 +40,25 @@ dentro del instalador. En el editor de cada sección se eligen sus imágenes
 (hasta 6), su orden y su pie de foto. Al hacer clic en una imagen se ve en
 grande.
 
+### Subir imágenes y videos propios
+
+Con la edición desbloqueada, el editor de cada sección permite **subir
+imágenes y videos** desde la computadora («Subir imagen…» / «Subir video…»),
+además de elegir los que trae la app. Límites:
+
+| Archivo        | Límite                                                        |
+| -------------- | ------------------------------------------------------------- |
+| Imagen         | JPG o PNG de hasta 15 MB; se reduce a 1600 px y se pasa a JPG |
+| Video          | MP4 de hasta 150 MB cada uno (sin subtítulos)                 |
+| Todo el manual | Hasta 500 MB y 40 archivos subidos                            |
+| Cada sección   | Hasta 6 imágenes y 1 video                                    |
+
+Los archivos se guardan en la carpeta de datos de la app y quedan protegidos
+por la firma (el contenido guarda su huella SHA-256). Al **exportar**, el
+`.psm` lleva los archivos adentro y al **importarlo** se copian solos. Si no
+hay archivos subidos, el `.psm` es igual al de antes y lo abren las versiones
+anteriores de la app.
+
 ### Las dos llaves
 
 | Llave                      | Quién la guarda                     | Para qué sirve                                 |

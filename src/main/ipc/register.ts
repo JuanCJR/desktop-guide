@@ -4,7 +4,8 @@
  * Aquí se conecta cada canal declarado en `src/shared/ipc/channels.ts` con la
  * función que lo atiende (en `./handlers/`). También se crea el servicio de
  * contenido (`../content/content-service.ts`), que decide qué contenido del
- * manual se muestra y protege los cambios con firmas digitales.
+ * manual se muestra y protege los cambios con firmas digitales, y el almacén
+ * de imágenes y videos subidos (`../content/media-store.ts`).
  *
  * Lo llama `../index.ts` al arrancar la app.
  */
@@ -18,18 +19,21 @@ import type { IpcChannel } from '@shared/ipc/channels';
 
 import { ContentService } from '../content/content-service';
 import { createFileStorage } from '../content/file-storage';
+import { MediaStore } from '../content/media-store';
 import { MASTER_PUBLIC_KEY_PEM } from '../content/public-key';
 import { parsePublicKey } from '../content/signing';
 import { isTrustedUrl } from '../security';
 import { createIpcHandler, type IpcHandler } from './create-handler';
 import { getAppInfo, ping } from './handlers/app';
 import { createContentHandlers } from './handlers/content';
+import { createMediaHandlers } from './handlers/media';
 
 /** Cada canal del contrato debe tener exactamente un handler aquí. */
-function createHandlers(): { [C in IpcChannel]: IpcHandler<C> } {
+function createHandlers(media: MediaStore): { [C in IpcChannel]: IpcHandler<C> } {
   // El contenido publicado y el registro de llaves se guardan en la carpeta de
   // datos del usuario en Windows (userData), no dentro de la instalación.
   const contentService = new ContentService({
+    media,
     packageStorage: createFileStorage(join(app.getPath('userData'), 'manual-content.psm')),
     trustStorage: createFileStorage(join(app.getPath('userData'), 'editor-key-trust.json')),
     bundled: DEFAULT_CONTENT,
@@ -38,13 +42,20 @@ function createHandlers(): { [C in IpcChannel]: IpcHandler<C> } {
   return {
     'app:get-info': getAppInfo,
     'app:ping': ping,
-    ...createContentHandlers(contentService),
+    ...createContentHandlers(contentService, media),
+    ...createMediaHandlers(contentService, media),
   };
 }
 
-/** Debe llamarse después de `app.whenReady()` (necesita la ruta de userData). */
-export function registerIpcHandlers(): void {
-  const handlers = createHandlers();
+/**
+ * Debe llamarse después de `app.whenReady()` (necesita la ruta de userData).
+ * Devuelve el almacén de archivos subidos, que también usa el protocolo
+ * `psm-media:` (`../media-protocol.ts`).
+ */
+export function registerIpcHandlers(): MediaStore {
+  // Imágenes y videos subidos desde el editor (ver `../content/media-store.ts`).
+  const media = new MediaStore(join(app.getPath('userData'), 'media'));
+  const handlers = createHandlers(media);
   // Solo se aceptan mensajes enviados desde páginas de la propia app.
   const options = {
     isTrustedSender: (event: IpcMainInvokeEvent) =>
@@ -56,4 +67,5 @@ export function registerIpcHandlers(): void {
     // garantiza que cada canal va con su handler correcto.
     ipcMain.handle(channel, createIpcHandler(channel, handlers[channel] as never, options));
   }
+  return media;
 }

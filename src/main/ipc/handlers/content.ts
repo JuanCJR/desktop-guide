@@ -24,6 +24,8 @@ import {
 } from '@shared/content/package';
 
 import type { ContentService, OlderPackageInfo } from '../../content/content-service';
+import type { MediaStore } from '../../content/media-store';
+import { importPackageMedia, readPackageFile, writePackageFile } from '../../content/package-file';
 import type { IpcHandler } from '../create-handler';
 
 // Filtros de los diálogos de archivos: solo muestran el tipo de archivo esperado.
@@ -135,7 +137,7 @@ async function readSmallFile(path: string, maxBytes: number): Promise<string | n
   return readFile(path, 'utf8');
 }
 
-export function createContentHandlers(service: ContentService): ContentHandlers {
+export function createContentHandlers(service: ContentService, media: MediaStore): ContentHandlers {
   return {
     // Devuelve el contenido que se muestra ahora y el estado del modo edición.
     'content:get': () => service.getState(),
@@ -151,9 +153,15 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
     'content:import': async (_request, event) => {
       const path = await pickFile(event, 'Importar contenido del manual', PACKAGE_FILTERS);
       if (!path) return { status: 'cancelled' };
-      const raw = await readSmallFile(path, MAX_PACKAGE_BYTES);
-      if (raw === null) return { status: 'invalid', message: 'El archivo es demasiado grande.' };
-      const result = await service.importPackage(raw, (info) => confirmOlderPackage(event, info));
+      // El .psm puede traer imágenes y videos subidos: se copian al almacén solo
+      // después de comprobar la firma del contenido (y la huella de cada uno).
+      const file = await readPackageFile(path, MAX_PACKAGE_BYTES);
+      if (!file.ok) return { status: 'invalid', message: file.message };
+      const result = await service.importPackage(
+        file.json,
+        (info) => confirmOlderPackage(event, info),
+        (needed) => importPackageMedia(path, file.entries, needed, media),
+      );
       if (result.status !== 'imported') return result;
       return { status: 'imported', state: await service.getState() };
     },
@@ -168,7 +176,7 @@ export function createContentHandlers(service: ContentService): ContentHandlers 
         filters: PACKAGE_FILTERS,
       });
       if (!path) return { status: 'cancelled' };
-      await writeFile(path, raw, 'utf8');
+      await writePackageFile(path, raw, await service.activeUploads(), media);
       return { status: 'saved' };
     },
 

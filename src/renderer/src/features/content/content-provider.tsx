@@ -43,6 +43,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     if (result.status === 'locked') {
       return ['La edición está bloqueada. Vuelve a cargar la llave de la escuela.'];
     }
+    if (result.status === 'invalid') return [result.message];
     setState(result.state);
     return [];
   }, []);
