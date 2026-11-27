@@ -109,9 +109,9 @@ existir antes de ejecutar el comando.
 
 ## Requisitos
 
-**Para usar la app:** Windows 10 u 11, de 64 o 32 bits (el mismo instalador
-sirve para ambos y elige solo la versión correcta). No hace falta instalar
-nada más. No funciona en Windows 7, 8 ni 8.1. Como el instalador no está
+**Para usar la app:** Windows 10 u 11 de 64 bits. No hace falta instalar nada
+más. No funciona en Windows 7, 8 ni 8.1, ni en Windows de 32 bits (Electron
+ya no publica versiones para esos sistemas). Como el instalador no está
 firmado, Windows puede mostrar «Windows protegió su PC»: hay que pulsar «Más
 información» y luego «Ejecutar de todas formas».
 
