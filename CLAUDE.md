@@ -25,7 +25,7 @@ contenido debe poder editarse** sin tocar código, pero **solo por la escuela**.
 | Validación IPC | Zod                                                             |
 | Tests          | Vitest                                                          |
 | Calidad        | ESLint (typescript-eslint `strict-type-checked`) + Prettier     |
-| Empaquetado    | electron-builder → instalador NSIS para Windows x64             |
+| Empaquetado    | electron-builder → instaladores NSIS de Windows x64 e ia32      |
 | Paquetes       | pnpm (versión fijada en `packageManager`), Node 24 (`.nvmrc`)   |
 | CI             | GitHub Actions en `windows-latest` (`.github/workflows/ci.yml`) |
 
@@ -44,7 +44,8 @@ pnpm format:check     # Prettier --check
 pnpm test             # Vitest (una pasada)
 pnpm test:watch       # Vitest en modo watch
 pnpm check            # typecheck + lint + format:check + test (lo mismo que CI)
-pnpm package:win      # build + instalador NSIS en release/<version>/
+pnpm package:win      # build + instalador NSIS de 64 bits en release/<version>/
+pnpm package:win32    # instalador de 32 bits (Electron 43) en release/<version>-32bits/
 pnpm content:master-key <ruta.pem>  # genera la llave maestra (ver abajo)
 ```
 
@@ -324,8 +325,15 @@ Antes de dar una tarea por terminada:
 - Ícono y nombre: `build/icon.ico` es el sello del PSM (de 16 a 256 px) y lo
   usan el ejecutable, el instalador y el desinstalador (`electron-builder.yml`).
   La app se llama «Manual de Inducción IUPSM», su ejecutable
-  `ManualInduccionIUPSM.exe` y el instalador
-  `Instalar-Manual-Induccion-IUPSM-<versión>.exe`.
+  `ManualInduccionIUPSM.exe` y los instaladores
+  `Instalar-Manual-Induccion-IUPSM-64bits-<versión>.exe` y
+  `Instalar-Manual-Induccion-IUPSM-32bits-<versión>.exe`.
+- 32 bits: Electron dejó de publicar versiones `win32-ia32` a partir de la 44.
+  El instalador de 32 bits (`electron-builder.ia32.yml`, hereda de
+  `electron-builder.yml`) fija `electronVersion` en la última 43.x. Es la misma
+  app compilada una vez, así que no uses en `main`/`preload` APIs de Electron
+  o de Node que no existan en Electron 43. Si Electron 43 deja de recibir
+  parches, evalúa con la escuela si sigue haciendo falta.
 - Carpeta de datos: la app se llamaba «Desktop Guide». `src/main/index.ts`
   fija `userData` en esa carpeta para que las instalaciones existentes no
   pierdan el contenido publicado ni el registro de llaves. No cambies ese

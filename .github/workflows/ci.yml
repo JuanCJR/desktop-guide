@@ -51,18 +51,34 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build NSIS installer (unsigned)
+      - name: Build 64-bit NSIS installer (unsigned)
         run: pnpm package:win
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
-      # Sube solo el instalador (Instalar-Manual-Induccion-IUPSM-<versión>.exe,
-      # nombre definido en `artifactName` de electron-builder.yml).
+      # Instalador aparte para Windows 10/11 de 32 bits (Electron 43, ver
+      # electron-builder.ia32.yml). Misma app; solo cambia la versión de Electron.
+      - name: Build 32-bit NSIS installer (unsigned)
+        run: pnpm package:win32
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      # Sube cada instalador por separado y con un nombre que dice para qué
+      # Windows es (nombres definidos en `artifactName` de cada configuración).
       - uses: actions/upload-artifact@v7
         with:
-          name: manual-induccion-iupsm-windows
+          name: instalador-windows-64-bits
           path: |
-            release/*/Instalar-*.exe
+            release/*/Instalar-*-64bits-*.exe
+            !release/*/*__uninstaller.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: instalador-windows-32-bits
+          path: |
+            release/*-32bits/Instalar-*-32bits-*.exe
             !release/*/*__uninstaller.exe
           if-no-files-found: error
           retention-days: 7

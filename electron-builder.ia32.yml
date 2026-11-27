@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json
+#
+# Instalador para Windows 10/11 de 32 bits.
+#
+# Usa la misma configuración que el instalador normal (`electron-builder.yml`)
+# y solo cambia lo necesario: Electron dejó de publicar versiones de 32 bits
+# para Windows a partir de la 44, así que este instalador usa la última que sí
+# existe (Electron 43). La app que va adentro es exactamente la misma, y los
+# archivos .psm y las llaves funcionan igual en los dos instaladores.
+#
+# Se genera con `pnpm package:win32`. Electron 43 deja de recibir parches de
+# seguridad cuando sale Electron 46: úsalo solo en computadoras de 32 bits.
+extends: ./electron-builder.yml
+
+electronVersion: 43.8.13
+
+directories:
+  output: release/${version}-32bits
+
+# Un valor simple (no una lista) reemplaza el destino heredado en vez de
+# sumarse a él; la arquitectura de 32 bits la fija `--ia32` en el script
+# `package:win32` de package.json.
+win:
+  target: nsis
+
+nsis:
+  artifactName: Instalar-Manual-Induccion-IUPSM-32bits-${version}.${ext}

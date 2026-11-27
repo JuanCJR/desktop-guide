@@ -40,7 +40,8 @@ nsis:
   installerIcon: build/icon.ico
   uninstallerIcon: build/icon.ico
   installerHeaderIcon: build/icon.ico
-  # Nombre del archivo del instalador que se entrega (sin tildes).
-  artifactName: Instalar-Manual-Induccion-IUPSM-${version}.${ext}
+  # Nombre del archivo del instalador que se entrega (sin tildes). Dice
+  # «64bits» para no confundirlo con el de 32 bits (`electron-builder.ia32.yml`).
+  artifactName: Instalar-Manual-Induccion-IUPSM-64bits-${version}.${ext}
 
 publish: null

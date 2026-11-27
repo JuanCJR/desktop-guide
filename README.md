@@ -109,6 +109,24 @@ existir antes de ejecutar el comando.
 
 ## Requisitos
 
+**Para usar la app:** Windows 10 u 11. No hace falta instalar nada más. Hay
+dos instaladores; usa el que corresponde a tu Windows (se ve en
+Configuración → Sistema → Acerca de → «Tipo de sistema»):
+
+| Tu Windows  | Instalador                                             |
+| ----------- | ------------------------------------------------------ |
+| **64 bits** | `Instalar-Manual-Induccion-IUPSM-64bits-<versión>.exe` |
+| **32 bits** | `Instalar-Manual-Induccion-IUPSM-32bits-<versión>.exe` |
+
+La app es la misma en los dos y los archivos `.psm` y las llaves funcionan
+igual entre ellos. El de 32 bits usa una versión anterior de Electron (la
+última que existe para 32 bits), así que solo conviene en computadoras de 32
+bits. No funciona en Windows 7, 8 ni 8.1. Como los instaladores no están
+firmados, Windows puede mostrar «Windows protegió su PC»: pulsa «Más
+información» y luego «Ejecutar de todas formas».
+
+**Para desarrollar:**
+
 - Node.js 24 (ver `.nvmrc`)
 - pnpm 10 (`corepack enable` instala la versión fijada en `package.json`)
 
@@ -124,18 +142,19 @@ La primera ejecución de `pnpm dev` descarga el binario de Electron.
 
 ## Scripts
 
-| Comando                          | Descripción                                                                    |
-| -------------------------------- | ------------------------------------------------------------------------------ |
-| `pnpm dev`                       | Modo desarrollo con HMR                                                        |
-| `pnpm build`                     | Build de producción en `out/`                                                  |
-| `pnpm preview`                   | Ejecuta el build de producción                                                 |
-| `pnpm typecheck`                 | Verificación de tipos                                                          |
-| `pnpm lint`                      | ESLint                                                                         |
-| `pnpm format`                    | Formatea con Prettier                                                          |
-| `pnpm test`                      | Tests con Vitest                                                               |
-| `pnpm check`                     | typecheck + lint + format + tests (igual que CI)                               |
-| `pnpm package:win`               | Genera `Instalar-Manual-Induccion-IUPSM-<version>.exe` en `release/<version>/` |
-| `pnpm content:master-key <ruta>` | Genera la llave maestra de la escuela (una sola vez)                           |
+| Comando                          | Descripción                                                        |
+| -------------------------------- | ------------------------------------------------------------------ |
+| `pnpm dev`                       | Modo desarrollo con HMR                                            |
+| `pnpm build`                     | Build de producción en `out/`                                      |
+| `pnpm preview`                   | Ejecuta el build de producción                                     |
+| `pnpm typecheck`                 | Verificación de tipos                                              |
+| `pnpm lint`                      | ESLint                                                             |
+| `pnpm format`                    | Formatea con Prettier                                              |
+| `pnpm test`                      | Tests con Vitest                                                   |
+| `pnpm check`                     | typecheck + lint + format + tests (igual que CI)                   |
+| `pnpm package:win`               | Instalador de 64 bits en `release/<version>/`                      |
+| `pnpm package:win32`             | Instalador de 32 bits (Electron 43) en `release/<version>-32bits/` |
+| `pnpm content:master-key <ruta>` | Genera la llave maestra de la escuela (una sola vez)               |
 
 ## Stack
 
