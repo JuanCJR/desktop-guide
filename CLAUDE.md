@@ -25,7 +25,7 @@ contenido debe poder editarse** sin tocar código, pero **solo por la escuela**.
 | Validación IPC | Zod                                                             |
 | Tests          | Vitest                                                          |
 | Calidad        | ESLint (typescript-eslint `strict-type-checked`) + Prettier     |
-| Empaquetado    | electron-builder → instalador NSIS para Windows x64             |
+| Empaquetado    | electron-builder → un instalador NSIS con Windows x64 e ia32    |
 | Paquetes       | pnpm (versión fijada en `packageManager`), Node 24 (`.nvmrc`)   |
 | CI             | GitHub Actions en `windows-latest` (`.github/workflows/ci.yml`) |
 

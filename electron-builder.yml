@@ -20,7 +20,10 @@ asar: true
 win:
   target:
     - target: nsis
-      arch: [x64]
+      # Un solo instalador con las versiones de 64 y 32 bits: al instalar,
+      # elige solo la que corresponde al Windows de la computadora. Electron
+      # funciona en Windows 10 y 11 (no en Windows 7, 8 ni 8.1).
+      arch: [x64, ia32]
   # Ícono del ejecutable y del instalador: build/icon.ico (sello del PSM, de
   # 16 a 256 px). electron-builder lo toma solo desde `buildResources`.
   icon: build/icon.ico
